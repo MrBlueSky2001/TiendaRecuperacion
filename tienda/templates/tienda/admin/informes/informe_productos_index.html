@@ -1,0 +1,20 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+	<h2>{% translate "choose_report" %}</h2>
+	<ul>
+         <a href="{% url 'informe_productos_marca' %}">
+            <li>{% translate "report_products_by_brand" %}</li>
+         </a>
+		<a href="{% url 'informe_productos_topten' %}">
+            <li>{% translate "top_seller" %}</li>
+         </a>
+        <a href="{% url 'informe_compras_usuario' %}">
+            <li>{% translate "purchases" %}</li>
+         </a>
+        <a href="{% url 'informe_usuarios_topten' %}">
+            <li>{% translate "top_clients" %}</li>
+         </a>
+	</ul>
+{% endblock %}

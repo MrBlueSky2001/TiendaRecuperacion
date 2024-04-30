@@ -1,0 +1,84 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/user_info.css' %}">
+    <div class="infoContainer">
+        <div class="containerUser">
+            <img src="{% static 'tienda/img/user_icon.svg' %}"/>
+            <h1>{{ cliente.user }}</h1>
+            <br>
+            <p><strong>Estado Vip:</strong> {{ cliente.vip }}</p>
+            <p><strong>Saldo:</strong> {{ cliente.saldo }} €</p>
+        </div>
+        <div class="detailContainer">
+            <p>Nombre y apellidos: {{ cliente.user.first_name }} {{ cliente.user.last_name }}</p>
+            <a href="{% url 'client_info_password_update' %}">Editar Contraseña</a>
+            <p>Email: {{ cliente.user.email }}</p>
+            <button>
+                <a href="{% url 'client_info_update' cliente.user.id %}">Editar datos personales</a>
+            </button>
+        </div>
+        <div class="direccionesContainer">
+            <h1>Direcciones:</h1>
+            <div class="direccionesListContainer">
+                {% for direccion in direcciones %}
+                    <div class="tarjetaDireccion">
+                        <p>{{ direccion.tipo_via }} {{ direccion.nombre }}, {{ direccion.numero }}. Dirección de
+                            {% if direccion.envio %}
+                                envío
+                            {% endif %}
+                            {% if direccion.facturacion %}
+                                facturación
+                            {% endif %}
+                        </p>
+                        <button>
+                            <a href="{% url  'client_address_update' direccion.id %}">Editar</a>
+                        </button>
+                         <button>
+                            <a href="{% url  'client_address_delete' direccion.id %}">Eliminar</a>
+                        </button>
+                    </div>
+                {% endfor %}
+                <div class="tarjetaDireccion">
+                    <button>
+                        <a href="{% url  'client_address_create' %}">Añadir una dirección</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+         <div class="pagosContainer">
+            <h1>Métodos de pago:</h1>
+             <div class="pagosListContainer">
+                 {% for tarjeta in tarjetas_pago %}
+                    <div class="tarjetaPago">
+                        <p>Numero: {{ tarjeta.numero }} Titular: {{ tarjeta.titular }}</p>
+                        <button>
+                            <a href="{% url  'client_payment_update' tarjeta.id %}">Editar</a>
+                        </button>
+                         <button>
+                            <a href="{% url  'client_payment_delete' tarjeta.id %}">Eliminar</a>
+                        </button>
+                    </div>
+                {% endfor %}
+                 <div class="tarjetaPago">
+                   <button>
+                        <a href="{% url  'client_payment_create' %}">Añadir un método de pago</a>
+                    </button>
+                </div>
+             </div>
+        </div>
+        <div class="pedidosContainer">
+            <h1>Historial de pedidos</h1>
+            <div class="pedidosListContainer">
+                {% for compra in compras %}
+                    <div class="tarjetaPedido">
+                     <p>Fecha: {{ compra.fecha }} Importe: {{ compra.importe }}  IVA: {{ compra.iva }} Direccion_envio: {{ compra.direccion_envio }} Direccion_facturacion: {{ compra.direccion_facturacion }} Metodo_pago: {{ compra.metodo_pago }}</p>
+                        <a href="{% url  'compra_detail' compra.id %}">Ver más detalles</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

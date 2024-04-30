@@ -1,0 +1,26 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/checkout.css' %}">
+    <div class="containerCompra">
+        <div class="containerCompraDesglose">
+            <h1>{% translate "checkout" %}</h1>
+            {% for productocompra in productoscompra %}
+                <span>{% translate "product_name" %}: {{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}</span>
+                <span>{% translate "product_units" %}: {{ productocompra.unidades }}</span>
+                <span>{% translate "product_price" %}: {{ productocompra.precio }}</span>
+                <br>
+            {% endfor %}
+
+            <br><br><br>
+            <p>{% translate "total_price" %}: {{ precio_total }}</p>
+            <form method="POST" >
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" value="checkout">{% translate "buy" %}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

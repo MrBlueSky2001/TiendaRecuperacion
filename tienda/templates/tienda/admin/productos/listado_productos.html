@@ -1,0 +1,57 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <a href="{% url 'crear_producto' %}">
+        <input type="button" value="{% translate "product_create" %}" class="btn btn-light" style="float: right">
+    </a>
+    <link rel="stylesheet" href="{% static 'tienda/css/listado.css' %}">
+    <table class="table table-stripped">
+        <th>{% translate "product_name" %}</th>
+        <th>{% translate "product_price" %}</th>
+        <th>{% translate "product_brand" %}</th>
+        <th>{% translate "product_model" %}</th>
+        <th>{% translate "product_units" %}</th>
+        <th>{% translate "product_vip" %}</th>
+        <th>{% translate "product_edit" %}</th>
+        <th>{% translate "product_delete" %}</th>
+        {% for producto in productos %}
+            <tr>
+                <td>
+                   {{ producto.nombre }}
+                </td>
+                <td>
+                   {{ producto.precio }}
+                </td>
+                 <td>
+                   {{ producto.marca.nombre }}
+                </td>
+                 <td>
+                   {{ producto.modelo }}
+                </td>
+                <td>
+                    {{ producto.unidades }}
+                </td>
+                <td>
+                    {% if producto.vip == True%}
+                        <input type="checkbox" checked disabled>
+                        {% else %}
+                            <input type="checkbox" value="false" disabled>
+                    {% endif %}
+
+                </td>
+                <td>
+                    <a href="{% url 'editar_producto' producto.id %}">
+                        <input type="button" value="Editar" id="{{ producto.id }}" class="btn btn-warning">
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'eliminar_producto' producto.id %}">
+                        <input type="button" value="Eliminar" id="{{ producto.id }}" class="btn btn-danger">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

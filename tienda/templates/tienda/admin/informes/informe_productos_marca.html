@@ -1,0 +1,40 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <form method="get">
+        {{ filter.form }}
+        <input type="submit" value="Buscar" class="btn btn-light">
+    </form>
+    <table class="table table-stripped">
+        <th>Nombre</th>
+        <th>Modelo</th>
+        <th>Precio</th>
+        <th>Unidades</th>
+        <th>Vip</th>
+        {% for producto in productos %}
+            <tr>
+                <td>
+                   {{ producto.nombre }}
+                </td>
+                 <td>
+                   {{ producto.modelo }}
+                </td>
+                <td>
+                   {{ producto.precio }}
+                </td>
+                <td>
+                    {{ producto.unidades }}
+                </td>
+                <td>
+                    {% if producto.vip == True %}
+                        <input type="checkbox" checked disabled>
+                        {% else %}
+                            <input type="checkbox" value="false" disabled>
+                    {% endif %}
+
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

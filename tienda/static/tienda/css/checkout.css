@@ -1,0 +1,27 @@
+.containerCompraDetalles{
+    background-color: grey;
+    width: 500px;
+    text-align: center;
+    padding: 40px;
+    border-radius: 20px;
+}
+
+.containerCompraDesglose{
+    background-color: grey;
+    width: 800px;
+    text-align: center;
+    padding: 40px;
+    border-radius: 20px;
+
+}
+
+.containerCompra{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 2% auto;
+}
+
+form > span > input{
+    max-width: 50px;
+}

@@ -1,0 +1,11 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/checkout.css' %}">
+    <div class="containerCompra">
+        <p>¿{% translate "buy_confirmation" %} {{ unidades }} unidades de {{ producto.nombre }} {{ producto.modelo }}?</p>
+        <input type="button" value="Confirmar compra" class="btn btn-warning">
+    </div>
+{% endblock %}

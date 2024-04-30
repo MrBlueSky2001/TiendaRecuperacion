@@ -1,0 +1,31 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <table class="table table-stripped">
+        <th>Usuario</th>
+        <th>Saldo</th>
+        <th>Vip</th>
+        <th>Importe total gastado</th>
+        {% for usuario in usuarios %}
+            <tr>
+                <td>
+                   {{ usuario.user }}
+                </td>
+                 <td>
+                   {{ usuario.saldo }}
+                </td>
+                <td>
+                    {% if usuario.vip == True %}
+                        <input type="checkbox" checked disabled>
+                        {% else %}
+                            <input type="checkbox" value="false" disabled>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ usuario.sum_importes }} €
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

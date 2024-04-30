@@ -1,0 +1,38 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/detalle_producto.css' %}">
+    ID: {{ compra.id }}
+    <br>
+    Importe: {{ compra.importe }}
+    <br>
+    Fecha: {{ compra.fecha }}
+    <br>
+    IVA: {{ compra.iva }}
+    <br>
+    Direccion_envio: {{ compra.direccion_envio }}
+    <br>
+    Direccion_facturacion:{{ compra.direccion_facturacion }}
+    <br>
+    Metodo_pago: {{ compra.metodo_pago }}
+    <br><br><br>
+    <h1>Productos</h1>
+    {% for productocompra in productoscompra %}
+        {{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}
+        Unidades compradas: {{productocompra.unidades}}
+        {% if productocompra.valoracion %}
+            <p>Puntuación: {{ productocompra.valoracion.puntuacion}}</p>
+            <p>Comentario: {{ productocompra.valoracion.comentario}}</p>
+            <button>
+                <a href="{% url  'order_rating_update' productocompra.valoracion.id %}?next={% url  'compra_detail' compra.id %}">Editar valoración</a>
+            </button>
+            {% else %}
+                <button>
+                    <a href="{% url  'order_rating_create' productocompra.id %}?next={% url  'compra_detail' compra.id %}">Añadir una valoración</a>
+                </button>
+        {% endif %}
+        <br><br>
+    {% endfor %}
+{% endblock %}

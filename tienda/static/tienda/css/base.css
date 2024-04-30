@@ -1,0 +1,21 @@
+body{
+    background-color: lightgray;
+}
+
+a {
+    text-decoration: none;
+}
+
+.success{
+    color: green;
+    text-decoration: none;
+    list-style: none;
+    font-size: 1.5em;
+}
+
+.error {
+    color: red;
+    text-decoration: none;
+    list-style: none;
+    font-size: 1.5em;
+}

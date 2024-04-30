@@ -1,0 +1,274 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-02-15 00:13+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\config\settings\base.py:146
+msgid "Spanish"
+msgstr "Spanish"
+
+#: .\config\settings\base.py:147
+msgid "English"
+msgstr "English"
+
+#: .\main\templates\base.html:8 .\main\templates\base.html:15
+msgid "Tienda Virtual"
+msgstr "Virtual Shop"
+
+#: .\main\templates\main\index.html:5
+msgid "Aqui empieza todo"
+msgstr "Here is where all starts..."
+
+#: .\main\templates\main\index.html:6
+msgid "Test"
+msgstr "Hello"
+
+#: .\tienda\filters.py:7 .\tienda\filters.py:16 .\tienda\filters.py:24
+#, fuzzy
+#| msgid "filter_name"
+msgid "filter_all"
+msgstr "All"
+
+#: .\tienda\filters.py:24
+#, fuzzy
+#| msgid "filter_name"
+msgid "filter_brand"
+msgstr "Brand"
+
+#: .\tienda\filters.py:25
+msgid "filter_name"
+msgstr "Name"
+
+#: .\tienda\forms.py:15
+msgid "units"
+msgstr "Quantity"
+
+#: .\tienda\forms.py:39
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:10
+msgid "payment_method"
+msgstr "Payment Method"
+
+#: .\tienda\forms.py:40
+#, fuzzy
+#| msgid "payment_address"
+msgid "shipping_address"
+msgstr "Shipping Address"
+
+#: .\tienda\forms.py:41
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:11
+msgid "payment_address"
+msgstr "Payment Address"
+
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:12
+msgid "delivery_address"
+msgstr "Shipping Address"
+
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:13
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:12
+#: .\tienda\templates\tienda\user\compra\checkout.html:13
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:13
+msgid "product_price"
+msgstr "Price"
+
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:14
+msgid "transaction_iva"
+msgstr "Tax"
+
+#: .\tienda\templates\tienda\admin\informes\informe_compras_usuario.html:15
+msgid "transaction_date"
+msgstr "Transaction date"
+
+#: .\tienda\templates\tienda\admin\informes\informe_productos_index.html:5
+msgid "choose_report"
+msgstr "Choose a report"
+
+#: .\tienda\templates\tienda\admin\informes\informe_productos_index.html:8
+#, fuzzy
+#| msgid "product_brand"
+msgid "report_products_by_brand"
+msgstr "Products by brand"
+
+#: .\tienda\templates\tienda\admin\informes\informe_productos_index.html:11
+msgid "top_seller"
+msgstr "Top seller"
+
+#: .\tienda\templates\tienda\admin\informes\informe_productos_index.html:14
+msgid "purchases"
+msgstr "Purchases by client"
+
+#: .\tienda\templates\tienda\admin\informes\informe_productos_index.html:17
+msgid "top_clients"
+msgstr "Top clients"
+
+#: .\tienda\templates\tienda\admin\productos\eliminar_producto.html:5
+#: .\tienda\templates\tienda\user\compra\eliminar_carrito.html:5
+#: .\tienda\templates\tienda\user\info\eliminar_direccion.html:5
+#: .\tienda\templates\tienda\user\info\eliminar_metodo_pago.html:5
+msgid "delete_confirmation"
+msgstr "Are you sure you want to delete"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:7
+#, fuzzy
+#| msgid "product_model"
+msgid "product_create"
+msgstr "Create"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:11
+#: .\tienda\templates\tienda\user\compra\checkout.html:11
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:10
+msgid "product_name"
+msgstr "Product"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:13
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:11
+msgid "product_brand"
+msgstr "Brand"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:14
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:12
+msgid "product_model"
+msgstr "Model"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:15
+#: .\tienda\templates\tienda\user\compra\checkout.html:12
+#, fuzzy
+#| msgid "product_available_units"
+msgid "product_units"
+msgstr "Available units"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:16
+#, fuzzy
+#| msgid "product_price"
+msgid "product_vip"
+msgstr "Price"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:17
+#, fuzzy
+#| msgid "product_name"
+msgid "product_edit"
+msgstr "Edit"
+
+#: .\tienda\templates\tienda\admin\productos\listado_productos.html:18
+#, fuzzy
+#| msgid "product_model"
+msgid "product_delete"
+msgstr "Delete"
+
+#: .\tienda\templates\tienda\base.html:43
+#, fuzzy
+#| msgid "product_name"
+msgid "product_management"
+msgstr "Product management"
+
+#: .\tienda\templates\tienda\base.html:46
+msgid "reports"
+msgstr "Reports"
+
+#: .\tienda\templates\tienda\base.html:59
+msgid "greetings"
+msgstr "Hello"
+
+#: .\tienda\templates\tienda\base.html:61
+msgid "logout"
+msgstr "Logout"
+
+#: .\tienda\templates\tienda\base.html:67
+msgid "login"
+msgstr "Login"
+
+#: .\tienda\templates\tienda\base.html:70
+msgid "sign_up"
+msgstr "Sign up"
+
+#: .\tienda\templates\tienda\user\compra\carrito.html:10
+msgid "cart"
+msgstr "Cart"
+
+#: .\tienda\templates\tienda\user\compra\carrito.html:34
+#, fuzzy
+#| msgid "product_model"
+msgid "cart_delete"
+msgstr "Delete"
+
+#: .\tienda\templates\tienda\user\compra\carrito.html:43
+msgid "cart_update"
+msgstr "Update"
+
+#: .\tienda\templates\tienda\user\compra\carrito.html:48
+#: .\tienda\templates\tienda\user\compra\checkout.html:9
+msgid "checkout"
+msgstr "Checkout"
+
+#: .\tienda\templates\tienda\user\compra\carrito.html:51
+#, fuzzy
+#| msgid "product_model"
+msgid "cart_empty"
+msgstr "The cart is empty."
+
+#: .\tienda\templates\tienda\user\compra\checkout.html:18
+#, fuzzy
+#| msgid "product_price"
+msgid "total_price"
+msgstr "Total price"
+
+#: .\tienda\templates\tienda\user\compra\checkout.html:22
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:21
+msgid "buy"
+msgstr "Buy"
+
+#: .\tienda\templates\tienda\user\compra\comprar_producto.html:8
+msgid "buy_confirmation"
+msgstr "Are you sure you want to buy"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:14
+msgid "product_available_units"
+msgstr "Available units"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:20
+#, fuzzy
+#| msgid "add_cart"
+msgid "add_to_cart"
+msgstr "Add to cart"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:26
+#, fuzzy
+#| msgid "greetings"
+msgid "rating"
+msgstr "Rating"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:27
+msgid "commentary"
+msgstr "Commentary"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:28
+msgid "user"
+msgstr "User"
+
+#: .\tienda\templates\tienda\user\compra\detalle_producto.html:31
+msgid "edit_rating"
+msgstr "Edit Rating"
+
+#: .\tienda\templates\tienda\user\compra\listado_comprar.html:9
+#, fuzzy
+#| msgid "filter_name"
+msgid "filter_search"
+msgstr "Search"
+
+#: .\tienda\templates\tienda\user\compra\listado_comprar.html:21
+msgid "detail"
+msgstr "Details"

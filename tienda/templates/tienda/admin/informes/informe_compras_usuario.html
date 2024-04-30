@@ -1,0 +1,39 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <form method="GET">
+        {{ filter.form.as_p }}
+        <input type="submit" value="Buscar" class="btn btn-light">
+    </form>
+    <table class="table table-stripped">
+        <th>{% translate "payment_method" %}</th>
+        <th>{% translate "payment_address" %}</th>
+        <th>{% translate "delivery_address" %}</th>
+        <th>{% translate "product_price" %}</th>
+        <th>{% translate "transaction_iva" %}</th>
+        <th>{% translate "transaction_date" %}</th>
+        {% for compra in compras %}
+            <tr>
+                <td>
+                   {{ compra.metodo_pago }}
+                </td>
+                <td>
+                   {{ compra.direccion_facturacion }}
+                </td>
+                <td>
+                   {{ compra.direccion_envio }}
+                </td>
+                <td>
+                   {{ compra.importe }}
+                </td>
+                <td>
+                   {{ compra.iva }}
+                </td>
+                <td>
+                   {{ compra.fecha | date:"SHORT_DATE_FORMAT"}}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/tienda.css' %}">
+    <form method="get" class="form">
+        {{ form.as_p }}
+        <input type="submit" value="{% translate 'filter_search' %}" class="btn btn-light">
+    </form>
+    <a href="{% url 'welcome' %}" class="btn btn-primary">Resetear</a>
+    <div class="containerTarjetas">
+        {% for producto in productos %}
+            <!--{{ forloop.counter }}-->
+            <div class="tarjeta">
+                <img src="{{ producto.image.url }}">
+                <p>{{ producto.marca.nombre }}</p>
+                <p> {{ producto.nombre }} {{ producto.modelo }}</p>
+                <div class="price">
+                    <p>{{ producto.precio }} €</p>
+                    <a href="{% url 'detalle_producto' producto.id %}">
+                        <input type="button" value="{% translate 'detail' %}" id="{{ producto.id }}" class="btn btn-warning">
+                    </a>
+                </div>
+
+            </div>
+        {% endfor %}
+     </div>
+{% endblock %}

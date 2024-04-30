@@ -1,0 +1,16 @@
+.loginForm{
+    width: fit-content;
+    margin: 0 auto;
+    background-color: #ececec;
+    border-radius: 10px;
+    padding: 20px;
+}
+.loginForm input {
+    border-radius: 10px;
+}
+.loginForm button {
+    border-radius: 10px;
+    background-color: orange;
+    font-weight: bold;
+    padding: 5px;
+}

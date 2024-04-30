@@ -1,0 +1,98 @@
+{% load static %}
+{% load i18n %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coches</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'tienda/css/base.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-example3">
+            <div class="container">
+                <a href="/" class="navbar-brand fs-1">Coches</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                            <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                                <input name="next" type="hidden" value="{{ redirect_to }}">
+                                <select name="language" class="form-control">
+                                    {% get_current_language as LANGUAGE_CODE %}
+                                    {% get_available_languages as LANGUAGES %}
+                                    {% get_language_info_list for LANGUAGES as languages %}
+                                    {% for language in languages %}
+                                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                            {{ language.name_local }} ({{ language.code }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <input type="submit" class="btn btn-primary" value="Go">
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            {% if  user.is_staff%}
+                                <a href="{% url 'listado_productos' %}" class="nav-link" >
+                                    <span>{% translate "product_management" %}</span>
+                                 </a>
+                                <a href="{% url 'informe_productos' %}" class="nav-link" >
+                                    <span>{% translate "reports" %}</span>
+                                 </a>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            {% if user.is_authenticated %}
+                                <div>
+                                    <a href="{% url 'carrito' %}" style="width: fit-content; text-decoration: none">
+                                        <i class="bi bi-cart text-light fs-2"></i>
+                                    </a>
+                                    <a href="{% url 'client_info' %}" style="width: fit-content; text-decoration: none">
+                                        <i class="bi bi-person-circle text-light fs-2"></i>
+                                    </a>
+                                    <span>{% translate "greetings" %}, <strong>{{ user }}</strong> </span>
+                                    <a href="{% url 'logout' %}">
+                                        <input type="button" class="btn btn-warning" value="{% translate "logout" %}">
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div>
+                                    <a href="{% url 'login' %}?next={{request.path }}">
+                                        <input type="button" class="btn btn-warning" value="{% translate "login" %}">
+                                    </a>
+                                    <a href="{% url 'register' %}">
+                                        <input type="button" class="btn btn-warning" value="{% translate "sign_up" %}">
+                                    </a>
+                                </div>
+                        {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <div class="container-fluid mt-2">
+        <div class="row">
+                <div class="col mt-3">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                    {% block content %}
+                    {% endblock %}
+                </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+            crossorigin="anonymous"></script>
+</body>
+</html>

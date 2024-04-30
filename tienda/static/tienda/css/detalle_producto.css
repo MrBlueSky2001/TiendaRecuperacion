@@ -1,0 +1,21 @@
+.containerDetalleProducto{
+    width: fit-content;
+    padding: 1.2em;
+}
+
+.containerDetalleProducto img {
+    width: 250px;
+    height: 250px;
+    margin-bottom: 20px;
+}
+
+.productoCompraInfo{
+    float: right;
+    margin-left: 40px;
+}
+
+.productoCompraInfo a{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}

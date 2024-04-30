@@ -1,0 +1,298 @@
+[
+  {
+    "model": "auth.user",
+    "fields": {
+      "password": "pbkdf2_sha256$390000$R3xxfYKA1yS8Rkitg39wPf$kbrrKXi3MX+yPEr8yTjvAn+93MZarmcP1WWr5LcNxc4=",
+      "last_login": "2023-11-19T11:57:21.980Z",
+      "is_superuser": true,
+      "username": "usuario",
+      "first_name": "",
+      "last_name": "",
+      "email": "a@iesmartinezm.es",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2023-11-19T11:57:18.354Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "de9ytj19v43i6n708mjpbt59xfqmt820",
+    "fields": {
+      "session_data": ".eJxVjMEOwiAQRP-FsyEs7Qp49N5vIMsuStXQpLQn47_bJj3oaZJ5b-atIq1LiWvLcxxFXRSo02-XiJ-57kAeVO-T5qku85j0ruiDNj1Mkl_Xw_07KNTKtg7CHBBuloTPGXsfCJG73jkits44SCTBQDBovAci7DyCt1uKxWzV5wvi-zc6:1r4gQT:OjMRsn-watkp-ilwkl3O_i4SaMWcyMGfBgZvemNzGSY",
+      "expire_date": "2023-12-03T11:57:21.986Z"
+    }
+  },
+  {
+    "model": "tienda.marca",
+    "pk": 1,
+    "fields": {
+      "nombre": "Toyota"
+    }
+  },
+  {
+    "model": "tienda.marca",
+    "pk": 2,
+    "fields": {
+      "nombre": "Ford"
+    }
+  },
+  {
+    "model": "tienda.marca",
+    "pk": 3,
+    "fields": {
+      "nombre": "Chevrolet"
+    }
+  },
+  {
+    "model": "tienda.cliente",
+    "pk": 1,
+    "fields": {
+      "vip": true,
+      "saldo": "250.00"
+    }
+  },
+  {
+    "model": "tienda.cliente",
+    "pk": 2,
+    "fields": {
+      "vip": false,
+      "saldo": "500.00"
+    }
+  },
+  {
+    "model": "tienda.producto",
+    "pk": 1,
+    "fields": {
+      "marca": 1,
+      "nombre": "Corolla Sedan",
+      "modelo": "CRS123",
+      "unidades": 25,
+      "precio": "25000.00",
+      "vip": false
+    }
+  },
+  {
+    "model": "tienda.producto",
+    "pk": 2,
+    "fields": {
+      "marca": 2,
+      "nombre": "F-150 Pickup",
+      "modelo": "F150M",
+      "unidades": 5,
+      "precio": "45000.00",
+      "vip": false
+    }
+  },
+  {
+    "model": "tienda.producto",
+    "pk": 3,
+    "fields": {
+      "marca": 3,
+      "nombre": "Camaro SS",
+      "modelo": "CMS123",
+      "unidades": 15,
+      "precio": "55000.00",
+      "vip": true
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+      "action_time": "2023-11-19T12:20:49.213Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "cliente"
+      ],
+      "object_id": "1",
+      "object_repr": "Cliente object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+      "action_time": "2023-11-19T12:20:54.951Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "cliente"
+      ],
+      "object_id": "2",
+      "object_repr": "Cliente object (2)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+      "action_time": "2023-11-19T12:21:01.805Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "marca"
+      ],
+      "object_id": "1",
+      "object_repr": "Marca object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+      "action_time": "2023-11-19T12:21:14.047Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "marca"
+      ],
+      "object_id": "2",
+      "object_repr": "Marca object (2)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+      "action_time": "2023-11-19T12:21:18.146Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "marca"
+      ],
+      "object_id": "3",
+      "object_repr": "Marca object (3)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+      "action_time": "2023-11-19T12:21:25.223Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "marca"
+      ],
+      "object_id": "1",
+      "object_repr": "Marca object (1)",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+      "action_time": "2023-11-19T12:21:57.303Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "producto"
+      ],
+      "object_id": "1",
+      "object_repr": "Producto object (1)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+      "action_time": "2023-11-19T12:22:05.501Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "marca"
+      ],
+      "object_id": "2",
+      "object_repr": "Marca object (2)",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 9,
+    "fields": {
+      "action_time": "2023-11-19T12:22:38.978Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "producto"
+      ],
+      "object_id": "2",
+      "object_repr": "Producto object (2)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 10,
+    "fields": {
+      "action_time": "2023-11-19T12:23:11.945Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "producto"
+      ],
+      "object_id": "3",
+      "object_repr": "Producto object (3)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 11,
+    "fields": {
+      "action_time": "2023-11-19T12:24:21.886Z",
+      "user": [
+        "usuario"
+      ],
+      "content_type": [
+        "tienda",
+        "producto"
+      ],
+      "object_id": "3",
+      "object_repr": "Producto object (3)",
+      "action_flag": 2,
+      "change_message": "[]"
+    }
+  }
+]

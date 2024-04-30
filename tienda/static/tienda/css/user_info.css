@@ -1,0 +1,112 @@
+html > *{
+    box-sizing: border-box;
+}
+
+.infoContainer{
+    display: grid;
+    grid-template-columns: repeat(3, 33.33%);
+    grid-template-rows: repeat(3, 33.33%);
+    overflow: hidden;
+    height: 90vh;
+}
+
+.containerUser{
+    justify-content: center;
+    margin: 20px 10px;
+    width: fit-content;
+    text-align: center;
+    background-color: #ececec;
+    border-radius: 10px;
+    padding: 10px;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.containerUser img {
+    width: 100px;
+    height: 100px;
+}
+
+.containerUser p:nth-child(5)
+{
+    font-size: 1em;
+}
+
+.pagosContainer{
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+    background-color: grey;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+.tarjetaPago{
+    background-color: #eeeeee;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+.pagosListContainer{
+    background-color: white;
+    height: 80%;
+    width: 98%;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+.detailContainer{
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    background-color: #eeeeee;
+    border-radius: 10px;
+    padding: 10px;
+
+}
+.direccionesContainer{
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    background-color: grey;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+
+}
+.direccionesListContainer{
+    background-color: white;
+    height: 80%;
+    width: 98%;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+.tarjetaDireccion{
+    background-color: #eeeeee;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.pedidosContainer{
+    grid-column: 2 / 4;
+    grid-row: 2 / 4;
+    background-color: grey;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+.pedidosListContainer{
+    background-color: white;
+    height: 90%;
+    width: 98%;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.tarjetaPedido{
+    background-color: #eeeeee;
+    border-radius: 10px;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+}

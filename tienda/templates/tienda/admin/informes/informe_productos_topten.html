@@ -1,0 +1,47 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <table class="table table-stripped">
+        <th>Nombre</th>
+        <th>Modelo</th>
+        <th>Marca</th>
+        <th>Precio</th>
+        <th>Unidades</th>
+        <th>Vip</th>
+        <th>Unidades vendidas</th>
+        <th>Importe total</th>
+        {% for producto in productos %}
+            <tr>
+                <td>
+                   {{ producto.nombre }}
+                </td>
+                 <td>
+                   {{ producto.modelo }}
+                </td>
+                <td>
+                   {{ producto.marca }}
+                </td>
+                <td>
+                   {{ producto.precio }}
+                </td>
+                <td>
+                    {{ producto.unidades }}
+                </td>
+                <td>
+                    {% if producto.vip == True %}
+                        <input type="checkbox" checked disabled>
+                        {% else %}
+                            <input type="checkbox" value="false" disabled>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ producto.sum_ventas }}
+                </td>
+                <td>
+                    {{ producto.sum_importes }} €
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'tienda/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <p>¿{% translate "delete_confirmation" %} <strong> {{ productocompra.producto.marca.nombre}} {{productocompra.producto.nombre }}</strong> ?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Confirmar" class="btn btn-warning">
+    </form>
+{% endblock content %}

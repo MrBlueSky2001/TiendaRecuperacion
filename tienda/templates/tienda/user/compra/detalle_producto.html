@@ -1,0 +1,36 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'tienda/css/detalle_producto.css' %}">
+    <div class="containerDetalleProducto">
+        <img src="{{ producto.image.url }}">
+        <div class="productoCompraInfo">
+            <p><strong>{% translate "product_name" %}: </strong> {{ producto.nombre }}</p>
+            <p><strong>{% translate "product_brand" %}: </strong> {{ producto.marca }}</p>
+            <p><strong>{% translate "product_model" %}: </strong> {{ producto.modelo }}</p>
+            <p><strong>{% translate "product_price" %}: </strong> {{ producto.precio }} €</p>
+            <p><strong>{% translate "product_available_units" %}:</strong> {{ producto.unidades }}</p>
+        </div>
+        {% if form != Empty %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" name="carrito" formaction="{% url 'agregar_carrito' %}?next={{request.path }}" value="{% translate "add_to_cart" %}" class="btn btn-warning">
+                <input type="submit" name="checkout" formaction="{% url 'agregar_carrito' %}?next={% url 'checkout' %}" value="{% translate "buy" %}" class="btn btn-warning">
+            </form>
+        {% endif %}
+    </div>
+    {% for valoracion in valoraciones %}
+        <p>{% translate "rating" %}: {{ valoracion.puntuacion }}</p>
+        <p>{% translate "commentary" %}: {{ valoracion.comentario }}</p>
+        <p>{% translate "user" %}: {{ valoracion.productocompra.compra.cliente.user.username }}</p>
+        {% if valoracion.productocompra.compra.cliente.user.id == user.id or perms.tienda.can_edit_commentary %}
+            <button>
+                <a href="{% url  'order_rating_update' valoracion.id %}?next={% url 'detalle_producto' producto.id %}">{% translate "edit_rating" %}</a>
+            </button>
+        {% endif %}
+        <br><br><br>
+    {% endfor %}
+{% endblock %}
