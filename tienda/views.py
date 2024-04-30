@@ -20,7 +20,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView
 from django_filters.views import FilterView
 from extra_views import FormSetView
-from .filters import ProductoPorMarcaFilter, ComprasPorClienteFilter, TiendaListFilter
+from .filters import ProductoPorMarcaFilter, ComprasPorClienteFilter
 from .forms import CompraForm, ClienteRegistrationForm, CheckoutForm, CarritoForm, FormBuscarProducto
 from .models import Producto, Compra, Cliente, Valoracion, Direccion, TarjetaDePago, ProductoCompra
 
