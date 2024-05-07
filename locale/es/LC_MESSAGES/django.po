@@ -269,6 +269,6 @@ msgstr "Editar puntuación"
 msgid "filter_search"
 msgstr "Buscar"
 
-#: .\tienda\templates\tienda\user\compra\listado_comprar.html:21
+#: .\tienda\templates\tienda\user\compra\listado_comprar.html:27
 msgid "detail"
 msgstr "Detalle"

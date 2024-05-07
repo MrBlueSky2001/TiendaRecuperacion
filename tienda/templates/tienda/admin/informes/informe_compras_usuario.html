@@ -3,10 +3,10 @@
 
 {% block content %}
     <form method="GET">
-        {{ filter.form.as_p }}
+        {{ form.as_p }}
         <input type="submit" value="Buscar" class="btn btn-light">
     </form>
-    <table class="table table-stripped">
+    <table class="table table-striped">
         <th>{% translate "payment_method" %}</th>
         <th>{% translate "payment_address" %}</th>
         <th>{% translate "delivery_address" %}</th>

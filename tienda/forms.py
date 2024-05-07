@@ -48,3 +48,11 @@ class CarritoForm(forms.Form):
 class FormBuscarProducto(forms.Form):
     texto = forms.CharField(required=False, widget=forms.TextInput({'class': 'form-control', 'placeholder': 'Buscar ...'}))
     marca = forms.ModelMultipleChoiceField(required=False, queryset=Marca.objects.all(), widget=forms.CheckboxSelectMultiple)
+
+class CompraSearchForm(forms.Form):
+    cliente = forms.ModelChoiceField(queryset=Cliente.objects.all(), label='Cliente', required=False)
+
+class ModificarSaldoForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ['saldo']

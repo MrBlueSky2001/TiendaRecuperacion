@@ -1,0 +1,53 @@
+.container-audio {
+  background-color: black;
+  border-radius: 20px;
+  width: 300px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  color: white;
+}
+
+.container-audio h1 {
+  position: absolute;
+  top: 4px;
+  text-align: center;
+  font-size: 16px;
+  margin: 0;
+}
+
+.container-audio .progress_container {
+  position: absolute;
+  bottom: 14px;
+  width: 100%;
+  max-width: 150px;
+  height: 5px;
+  background-color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.container-audio #progress {
+  background-color: aqua;
+  width: 0;
+  height: 100%;
+}
+
+.container-audio #current_time {
+  position: absolute;
+  top: 40%;
+  left: 10%;
+}
+
+.container-audio #current_audio {
+  position: absolute;
+  top: 40%;
+  right: 10%;
+}
+
+.container-audio .buttons button {
+  cursor: pointer;
+}

@@ -4,25 +4,19 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core import serializers
-from django.db import transaction, models
+from django.db import transaction
 from django.db.models import Sum, F
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy, reverse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import UpdateView, ListView, TemplateView
-from django.views.generic.base import View
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, FormView
+from django.views.generic import UpdateView, ListView, TemplateView, View, DetailView, CreateView, DeleteView, FormView
 from django_filters.views import FilterView
 from extra_views import FormSetView
-from .filters import ProductoPorMarcaFilter, ComprasPorClienteFilter
-from .forms import CompraForm, ClienteRegistrationForm, CheckoutForm, CarritoForm, FormBuscarProducto
-from .models import Producto, Compra, Cliente, Valoracion, Direccion, TarjetaDePago, ProductoCompra
+from .forms import *
+from .models import *
 
 
 # Create your views here.
@@ -59,7 +53,6 @@ class ProductoDeleteView(DeleteView):
     model = Producto
     template_name = 'tienda/admin/productos/eliminar_producto.html'
     success_url = reverse_lazy('listado_productos')
-
 
 @method_decorator(staff_member_required(), name='dispatch')
 class ProductoCreateView(CreateView):
@@ -317,11 +310,22 @@ class InformesView(TemplateView):
 
 
 @method_decorator(staff_member_required(), name='dispatch')
-class ProductoPorMarcaInformeFilterView(FilterView):
+class ProductoPorMarcaInformeFilterView(ListView):
     template_name = 'tienda/admin/informes/informe_productos_marca.html'
-    filterset_class = ProductoPorMarcaFilter
     context_object_name = "productos"
+    model = Producto
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        marca_id = self.request.GET.get('marca_id')
+        if marca_id:
+            queryset = queryset.filter(marca_id=marca_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['marcas'] = Marca.objects.all()
+        return context
 
 @method_decorator(staff_member_required(), name='dispatch')
 class ProductosTopTenListView(ListView):
@@ -349,13 +353,23 @@ class ClientesTopTenListView(ListView):
             "-sum_importes")[:10]
         return usuarios
 
-
 @method_decorator(staff_member_required(), name='dispatch')
-class ComprasPorClienteInformeFilterView(FilterView):
+class ComprasPorClienteInformeFilterView(ListView):
     template_name = 'tienda/admin/informes/informe_compras_usuario.html'
-    filterset_class = ComprasPorClienteFilter
     context_object_name = "compras"
+    form_class = CompraSearchForm
 
+    def get_queryset(self):
+        queryset = Compra.objects.all()
+        cliente = self.request.GET.get('cliente')
+        if cliente:
+            queryset = queryset.filter(cliente=cliente)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
 
 class LoginClienteView(LoginView):
     template_name = 'tienda/login/login.html'
@@ -628,3 +642,13 @@ class TarjetaPagoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
         if tarjeta_pago.cliente.user.id == current_user.id:
             result = True
         return result
+
+class ModificarSaldoView(UpdateView):
+    model = Cliente
+    template_name = 'tienda/create_template.html'
+    form_class = ModificarSaldoForm
+    success_url = reverse_lazy('client_info')
+
+    def get_object(self, queryset=None):
+        cliente_id = self.kwargs.get('cliente_id')
+        return Cliente.objects.get(id=cliente_id)

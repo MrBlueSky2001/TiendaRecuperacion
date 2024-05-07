@@ -3,38 +3,41 @@
 
 {% block content %}
     <form method="get">
-        {{ filter.form }}
+        <label for="marca_id">Marca:</label>
+        <select name="marca_id" id="marca_id">
+            <option value="">Todas las marcas</option>
+            {% for marca in marcas %}
+                <option value="{{ marca.id }}">{{ marca.nombre }}</option>
+            {% endfor %}
+        </select>
         <input type="submit" value="Buscar" class="btn btn-light">
     </form>
     <table class="table table-stripped">
-        <th>Nombre</th>
-        <th>Modelo</th>
-        <th>Precio</th>
-        <th>Unidades</th>
-        <th>Vip</th>
-        {% for producto in productos %}
+        <thead>
             <tr>
-                <td>
-                   {{ producto.nombre }}
-                </td>
-                 <td>
-                   {{ producto.modelo }}
-                </td>
-                <td>
-                   {{ producto.precio }}
-                </td>
-                <td>
-                    {{ producto.unidades }}
-                </td>
-                <td>
-                    {% if producto.vip == True %}
-                        <input type="checkbox" checked disabled>
+                <th>Nombre</th>
+                <th>Modelo</th>
+                <th>Precio</th>
+                <th>Unidades</th>
+                <th>Vip</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.modelo }}</td>
+                    <td>{{ producto.precio }}</td>
+                    <td>{{ producto.unidades }}</td>
+                    <td>
+                        {% if producto.vip %}
+                            <input type="checkbox" checked disabled>
                         {% else %}
                             <input type="checkbox" value="false" disabled>
-                    {% endif %}
-
-                </td>
-            </tr>
-        {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
     </table>
 {% endblock %}

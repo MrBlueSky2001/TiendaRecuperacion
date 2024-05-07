@@ -3,13 +3,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import ProductoCreateView, ProductoDeleteView, ProductosListView, ProductoUpdateView, \
-    ProductosTopTenListView, ClientesTopTenListView, ProductoPorMarcaInformeFilterView, \
-    InformesView, ComprasPorClienteInformeFilterView, ListadoComprarFilterView, LoginClienteView, ProductoDetailView, \
-    LogoutClienteView, ClienteDetailView, ClienteCreateView, DireccionCreateView, \
-    TarjetaPagoCreateView, ClienteUpdateView, PasswordUpdateView, ValoracionUpdateView, ValoracionCreateView, \
-    CheckoutCreateView, CarritoView, AgregarCarritoItemView, CarritoDeleteItemView, CompraDetailView, \
-    DireccionUpdateView, DireccionDeleteView, TarjetaPagoUpdateView, TarjetaPagoDeleteView
+from .views import *
 
 urlpatterns = [
     path('', views.welcome, name='welcome'),
@@ -53,6 +47,7 @@ urlpatterns = [
     path('user/info/tarjetapago/delete/<int:pk>', TarjetaPagoDeleteView.as_view(), name="client_payment_delete"),
     path('user/info/tarjetapago/crear', TarjetaPagoCreateView.as_view(), name="client_payment_create"),
     path('user/info/compra/<int:pk>', CompraDetailView.as_view(), name="compra_detail"),
+    path('cliente/<int:cliente_id>/modificar-saldo/', ModificarSaldoView.as_view(), name='modificar_saldo'),
 
     #Valoraciones
     path('user/compra/valoracion/update/<int:pk>', ValoracionUpdateView.as_view(), name="order_rating_update"),
