@@ -19,23 +19,77 @@ from .forms import *
 from .models import *
 
 
-# Create your views here.
-def welcome(request):
-    return redirect('listado_comprar')
-
-
 def verify_client(user):
     return Cliente.objects.filter(user=user).exists()
 
+def welcome(request):
+    return redirect('listado_comprar')
 
-# Listado de productos en el apartado de gestión
-@method_decorator(staff_member_required, name='dispatch')
-class ProductosListView(ListView):
+@method_decorator(staff_member_required(), name='dispatch')
+class ComprasPorClienteInformeFilterView(ListView):
+    template_name = 'tienda/admin/informes/informe_compras_usuario.html'
+    context_object_name = "compras"
+    form_class = CompraSearchForm
+
+    def get_queryset(self):
+        queryset = Compra.objects.all()
+        cliente = self.request.GET.get('cliente')
+        if cliente:
+            queryset = queryset.filter(cliente=cliente)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
+
+@method_decorator(staff_member_required(), name='dispatch')
+class InformesView(TemplateView):
+    template_name = 'tienda/admin/informes/informe_productos_index.html'
+
+@method_decorator(staff_member_required(), name='dispatch')
+class ProductoPorMarcaInformeFilterView(ListView):
+    template_name = 'tienda/admin/informes/informe_productos_marca.html'
+    context_object_name = "productos"
     model = Producto
-    template_name = 'tienda/admin/productos/listado_productos.html'
-    queryset = Producto.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        marca_id = self.request.GET.get('marca_id')
+        if marca_id:
+            queryset = queryset.filter(marca_id=marca_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['marcas'] = Marca.objects.all()
+        return context
+
+@method_decorator(staff_member_required(), name='dispatch')
+class ProductosTopTenListView(ListView):
+    template_name = 'tienda/admin/informes/informe_productos_topten.html'
     context_object_name = "productos"
 
+    def get_queryset(self):
+        productos = Producto.objects.filter(productocompra__isnull=False).annotate(
+            sum_ventas=Sum('productocompra__unidades'),
+            sum_importes=Sum(F('precio') * F(
+                'productocompra__unidades'),
+                             output_field=models.FloatField())
+        ).order_by(
+            "-sum_ventas")[:10]
+        return productos
+
+
+@method_decorator(staff_member_required(), name='dispatch')
+class ClientesTopTenListView(ListView):
+    template_name = 'tienda/admin/informes/informe_usuarios_topten.html'
+    context_object_name = "usuarios"
+
+    def get_queryset(self):
+        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(sum_importes=Sum('compra__importe')).order_by(
+            "-sum_importes")[:10]
+        return usuarios
 
 @method_decorator(staff_member_required, name='dispatch')
 class ProductoUpdateView(UpdateView):
@@ -47,12 +101,18 @@ class ProductoUpdateView(UpdateView):
     def form_invalid(self, form):
         messages.add_message(self.request, messages.WARNING, "Error de formulario")
 
-
 @method_decorator(staff_member_required, name='dispatch')
 class ProductoDeleteView(DeleteView):
     model = Producto
     template_name = 'tienda/admin/productos/eliminar_producto.html'
     success_url = reverse_lazy('listado_productos')
+
+@method_decorator(staff_member_required, name='dispatch')
+class ProductosListView(ListView):
+    model = Producto
+    template_name = 'tienda/admin/productos/listado_productos.html'
+    queryset = Producto.objects.all()
+    context_object_name = "productos"
 
 @method_decorator(staff_member_required(), name='dispatch')
 class ProductoCreateView(CreateView):
@@ -61,90 +121,17 @@ class ProductoCreateView(CreateView):
     fields = ['marca', 'nombre', 'modelo', 'unidades', 'precio', 'vip', 'image']
     success_url = reverse_lazy('listado_productos')
 
-class ListadoComprarFilterView(FilterView):
-    template_name = 'tienda/user/compra/listado_comprar.html'
-    context_object_name = "productos"
-
-    def get(self, request, *args, **kwargs):
-        form = FormBuscarProducto(request.GET)
-
-        if form.is_valid():
-            texto_busqueda = form.cleaned_data.get('texto', '').lower()  # Convertir a minúsculas
-            marcas_seleccionadas = form.cleaned_data.get('marca', [])
-            print("Texto de búsqueda:", texto_busqueda)  # Verifica el texto de búsqueda
-            print("Marcas seleccionadas:", marcas_seleccionadas)  # Verifica las marcas seleccionadas
-
-            queryset = Producto.objects.filter(unidades__gt=0)
-
-            if texto_busqueda:
-                queryset = queryset.filter(nombre__icontains=texto_busqueda)  # Uso de icontains
-
-            if marcas_seleccionadas:
-                queryset = queryset.filter(marca__in=marcas_seleccionadas)
-        else:
-            print("El formulario no es válido:", form.errors)
-            queryset = Producto.objects.filter(unidades__gt=0)
-
-        user = request.user
-        if user.is_authenticated and verify_client(user):
-            cliente = Cliente.objects.get(user=user)
-            if not cliente.vip:
-                queryset = queryset.filter(vip=False)
-        else:
-            queryset = queryset.filter(vip=False)
-
-        context = {
-            'productos': queryset,
-            'form': form,
-        }
-        return render(request, self.template_name, context)
-
-class ProductoDetailView(DetailView):
-    model = Producto
-    template_name = 'tienda/user/compra/detalle_producto.html'
-    context_object_name = 'producto'
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not request.user.is_anonymous and verify_client(request.user):
-            form = CompraForm(initial={'id_producto': self.object.id})
-        else:
-            form = None
-        valoraciones = Valoracion.objects.filter(productocompra__producto_id=self.object.id)
-        context = {'producto': self.object, 'form': form, 'valoraciones': valoraciones}
-        return render(request, self.template_name, context)
-
-class AgregarCarritoItemView(LoginRequiredMixin, UserPassesTestMixin, FormView):
-    form_class = CompraForm
-
-    def test_func(self):
-        return verify_client(self.request.user)
+class LoginClienteView(LoginView):
+    template_name = 'tienda/login/login.html'
 
     def form_valid(self, form):
-        lista_productos = []
-
-        if 'lista_productos_carrito' in self.request.session:
-            des_list = serializers.deserialize('json', self.request.session['lista_productos_carrito'])
-            for productocompra in des_list:
-                lista_productos.append(productocompra.object)
-
-        unidades = form.cleaned_data['unidades']
-        id_producto = form.cleaned_data['id_producto']
-        producto = Producto.objects.filter(id=id_producto).first()
-
-        if any(miProducto.producto.id == producto.id for miProducto in lista_productos):
-            for miProducto in lista_productos:
-                if miProducto.producto.id == producto.id:
-                    miProducto.unidades = miProducto.unidades + int(unidades)
+        user = form.get_user()
+        if verify_client(user):
+            return_value = super().form_valid(form)
         else:
-            nuevo_producto = ProductoCompra(producto=producto, compra=None, unidades=unidades,
-                                            precio=producto.precio)
-            lista_productos.append(nuevo_producto)
-
-        self.request.session['lista_productos_carrito'] = serializers.serialize('json', lista_productos)
-
-        messages.add_message(self.request, messages.SUCCESS, "Añadido al carrito")
-        return redirect(self.get_success_url())
+            messages.add_message(self.request, messages.WARNING, "Sólo los clientes registrados pueden iniciar sesión.")
+            return_value = self.form_invalid(form)
+        return return_value
 
     def get_success_url(self):
         try:
@@ -152,6 +139,34 @@ class AgregarCarritoItemView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         except:
             next_page = "/"
         return next_page
+
+class LogoutClienteView(LoginRequiredMixin, LogoutView):
+    next_page = '/tienda'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        messages.add_message(self.request, messages.ERROR, "Sesión cerrada")  # No aparece el mensaje
+        return context
+
+class ClienteCreateView(CreateView):
+    model = Cliente
+    template_name = 'tienda/create_template.html'
+    success_url = reverse_lazy('tienda')
+    form_class = ClienteRegistrationForm
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        return form
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form_username = form.cleaned_data.get("username")
+        user = User.objects.get(username=form_username)
+        cliente = Cliente(vip=False, saldo=0, user=user)
+        cliente.save()
+        login(self.request, user)
+
+        return response
 
 class CarritoView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
     template_name = 'tienda/user/compra/carrito.html'
@@ -204,24 +219,6 @@ class CarritoView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
         context['productoscompra'] = productoscompra
 
         return context
-
-class CarritoDeleteItemView(LoginRequiredMixin, UserPassesTestMixin, View):
-
-    def test_func(self):
-        return verify_client(self.request.user)
-
-    def get(self, request, pk):
-        productoscompra = []
-        if 'lista_productos_carrito' in self.request.session:
-            des_list = serializers.deserialize('json', self.request.session['lista_productos_carrito'])
-            for productocompra in des_list:
-                if not productocompra.object.uuid == pk:
-                    productoscompra.append(productocompra.object)
-            if len(productoscompra) > 0:
-                self.request.session['lista_productos_carrito'] = serializers.serialize('json', productoscompra)
-            else:
-                del self.request.session['lista_productos_carrito']
-        return redirect('carrito')
 
 class ComprobarCarrito:
     def dispatch(self, request, *args, **kwargs):
@@ -303,85 +300,69 @@ class CheckoutCreateView(ComprobarCarrito, LoginRequiredMixin, UserPassesTestMix
 
         return form_valid
 
+class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Compra
+    template_name = 'tienda/user/compra/detalle_compra.html'
 
-@method_decorator(staff_member_required(), name='dispatch')
-class InformesView(TemplateView):
-    template_name = 'tienda/admin/informes/informe_productos_index.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['productoscompra'] = ProductoCompra.objects.filter(compra_id=self.object.id).select_related(
+            'valoracion')
+        return context
 
+    def test_func(self):
+        result = False
+        compra = get_object_or_404(Compra, pk=self.kwargs["pk"])
+        if verify_client(self.request.user) and compra.cliente.user.id == self.request.user.id:
+            result = True
+        return result
 
-@method_decorator(staff_member_required(), name='dispatch')
-class ProductoPorMarcaInformeFilterView(ListView):
-    template_name = 'tienda/admin/informes/informe_productos_marca.html'
-    context_object_name = "productos"
+class ProductoDetailView(DetailView):
     model = Producto
+    template_name = 'tienda/user/compra/detalle_producto.html'
+    context_object_name = 'producto'
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        marca_id = self.request.GET.get('marca_id')
-        if marca_id:
-            queryset = queryset.filter(marca_id=marca_id)
-        return queryset
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.is_anonymous and verify_client(request.user):
+            form = CompraForm(initial={'id_producto': self.object.id})
+        else:
+            form = None
+        valoraciones = Valoracion.objects.filter(productocompra__producto_id=self.object.id)
+        context = {'producto': self.object, 'form': form, 'valoraciones': valoraciones}
+        return render(request, self.template_name, context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['marcas'] = Marca.objects.all()
-        return context
+class AgregarCarritoItemView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+    form_class = CompraForm
 
-@method_decorator(staff_member_required(), name='dispatch')
-class ProductosTopTenListView(ListView):
-    template_name = 'tienda/admin/informes/informe_productos_topten.html'
-    context_object_name = "productos"
-
-    def get_queryset(self):
-        productos = Producto.objects.filter(productocompra__isnull=False).annotate(
-            sum_ventas=Sum('productocompra__unidades'),
-            sum_importes=Sum(F('precio') * F(
-                'productocompra__unidades'),
-                             output_field=models.FloatField())
-        ).order_by(
-            "-sum_ventas")[:10]
-        return productos
-
-
-@method_decorator(staff_member_required(), name='dispatch')
-class ClientesTopTenListView(ListView):
-    template_name = 'tienda/admin/informes/informe_usuarios_topten.html'
-    context_object_name = "usuarios"
-
-    def get_queryset(self):
-        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(sum_importes=Sum('compra__importe')).order_by(
-            "-sum_importes")[:10]
-        return usuarios
-
-@method_decorator(staff_member_required(), name='dispatch')
-class ComprasPorClienteInformeFilterView(ListView):
-    template_name = 'tienda/admin/informes/informe_compras_usuario.html'
-    context_object_name = "compras"
-    form_class = CompraSearchForm
-
-    def get_queryset(self):
-        queryset = Compra.objects.all()
-        cliente = self.request.GET.get('cliente')
-        if cliente:
-            queryset = queryset.filter(cliente=cliente)
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.form_class(self.request.GET)
-        return context
-
-class LoginClienteView(LoginView):
-    template_name = 'tienda/login/login.html'
+    def test_func(self):
+        return verify_client(self.request.user)
 
     def form_valid(self, form):
-        user = form.get_user()
-        if verify_client(user):
-            return_value = super().form_valid(form)
+        lista_productos = []
+
+        if 'lista_productos_carrito' in self.request.session:
+            des_list = serializers.deserialize('json', self.request.session['lista_productos_carrito'])
+            for productocompra in des_list:
+                lista_productos.append(productocompra.object)
+
+        unidades = form.cleaned_data['unidades']
+        id_producto = form.cleaned_data['id_producto']
+        producto = Producto.objects.filter(id=id_producto).first()
+
+        if any(miProducto.producto.id == producto.id for miProducto in lista_productos):
+            for miProducto in lista_productos:
+                if miProducto.producto.id == producto.id:
+                    miProducto.unidades = miProducto.unidades + int(unidades)
         else:
-            messages.add_message(self.request, messages.WARNING, "Sólo los clientes registrados pueden iniciar sesión.")
-            return_value = self.form_invalid(form)
-        return return_value
+            nuevo_producto = ProductoCompra(producto=producto, compra=None, unidades=unidades,
+                                            precio=producto.precio)
+            lista_productos.append(nuevo_producto)
+
+        self.request.session['lista_productos_carrito'] = serializers.serialize('json', lista_productos)
+
+        messages.add_message(self.request, messages.SUCCESS, "Añadido al carrito")
+        return redirect(self.get_success_url())
 
     def get_success_url(self):
         try:
@@ -390,35 +371,65 @@ class LoginClienteView(LoginView):
             next_page = "/"
         return next_page
 
-
-class LogoutClienteView(LoginRequiredMixin, LogoutView):
-    next_page = '/tienda'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        messages.add_message(self.request, messages.ERROR, "Sesión cerrada")  # No aparece el mensaje
-        return context
-
-
-class ClienteDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = Cliente
-    template_name = 'tienda/user/client_info.html'
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Cliente, user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # if not verify_client(self.object.user):
-        #    messages.add_message(self.request, messages.ERROR, "Usuario inválido")  # No aparece el mensaje
-        context['compras'] = Compra.objects.filter(cliente__user_id=self.object.user.id)
-        context['direcciones'] = Direccion.objects.filter(cliente__user_id=self.object.user.id)
-        context['tarjetas_pago'] = TarjetaDePago.objects.filter(cliente__user_id=self.object.user.id)
-        return context
+class CarritoDeleteItemView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return verify_client(self.request.user)
 
+    def get(self, request, pk):
+        productoscompra = []
+        if 'lista_productos_carrito' in self.request.session:
+            des_list = serializers.deserialize('json', self.request.session['lista_productos_carrito'])
+            for productocompra in des_list:
+                if not productocompra.object.uuid == pk:
+                    productoscompra.append(productocompra.object)
+            if len(productoscompra) > 0:
+                self.request.session['lista_productos_carrito'] = serializers.serialize('json', productoscompra)
+            else:
+                del self.request.session['lista_productos_carrito']
+        return redirect('carrito')
+
+class ListadoComprarFilterView(FilterView):
+    template_name = 'tienda/user/compra/listado_comprar.html'
+    context_object_name = "productos"
+
+    def get(self, request, *args, **kwargs):
+        form = FormBuscarProducto(request.GET)
+
+        if form.is_valid():
+            texto_busqueda = form.cleaned_data.get('texto', '').lower()  # Convertir a minúsculas
+            marcas_seleccionadas = form.cleaned_data.get('marca', [])
+            print("Texto de búsqueda:", texto_busqueda)  # Verifica el texto de búsqueda
+            print("Marcas seleccionadas:", marcas_seleccionadas)  # Verifica las marcas seleccionadas
+
+            queryset = Producto.objects.filter(unidades__gt=0)
+
+            if texto_busqueda:
+                queryset = queryset.filter(nombre__icontains=texto_busqueda)  # Uso de icontains
+
+            if marcas_seleccionadas:
+                queryset = queryset.filter(marca__in=marcas_seleccionadas)
+        else:
+            print("El formulario no es válido:", form.errors)
+            queryset = Producto.objects.filter(unidades__gt=0)
+
+        user = request.user
+        if user.is_authenticated and verify_client(user):
+            cliente = Cliente.objects.get(user=user)
+            if not cliente.vip:
+                queryset = queryset.filter(vip=False)
+        else:
+            queryset = queryset.filter(vip=False)
+
+        context = {
+            'productos': queryset,
+            'form': form,
+        }
+        return render(request, self.template_name, context)
+
+@method_decorator(staff_member_required(), name='dispatch')
+class InformesView(TemplateView):
+    template_name = 'tienda/admin/informes/informe_productos_index.html'
 
 class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Compra
@@ -437,28 +448,6 @@ class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             result = True
         return result
 
-
-class ClienteCreateView(CreateView):
-    model = Cliente
-    template_name = 'tienda/create_template.html'
-    success_url = reverse_lazy('tienda')
-    form_class = ClienteRegistrationForm
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        return form
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        form_username = form.cleaned_data.get("username")
-        user = User.objects.get(username=form_username)
-        cliente = Cliente(vip=False, saldo=0, user=user)
-        cliente.save()
-        login(self.request, user)
-
-        return response
-
-
 class DireccionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Direccion
     template_name = 'tienda/create_template.html'
@@ -475,6 +464,33 @@ class DireccionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         instance.save()
 
         return super().form_valid(form)
+
+class DireccionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Direccion
+    template_name = 'tienda/create_template.html'
+    fields = ['tipo_via', 'nombre', 'numero', 'envio', 'facturacion']
+    success_url = reverse_lazy('client_info')
+
+    def test_func(self):
+        current_user = self.request.user
+        result = False
+        direccion = get_object_or_404(Direccion, pk=self.kwargs["pk"])
+        if direccion.cliente.user.id == current_user.id:
+            result = True
+        return result
+
+class DireccionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Direccion
+    template_name = 'tienda/user/info/eliminar_direccion.html'
+    success_url = reverse_lazy('client_info')
+
+    def test_func(self):
+        current_user = self.request.user
+        result = False
+        direccion = get_object_or_404(Direccion, pk=self.kwargs["pk"])
+        if direccion.cliente.user.id == current_user.id:
+            result = True
+        return result
 
 
 class TarjetaPagoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
@@ -499,61 +515,51 @@ class TarjetaPagoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
 
         return super().form_valid(form)
 
-
-class ClienteUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = User
+class TarjetaPagoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = TarjetaDePago
     template_name = 'tienda/create_template.html'
+    fields = ['numero', 'tipo', 'titular', 'fecha_caducidad']
     success_url = reverse_lazy('client_info')
-    fields = ['first_name', 'last_name', 'email']
-
-    def test_func(self):
-        result = True
-        current_user = self.request.user
-        request_user_id = self.kwargs.get('pk')
-
-        if not current_user.id == request_user_id:
-            result = False
-            messages.add_message(self.request, messages.ERROR, "No tienes permiso para acceder a este perfil.")
-        return result
-
-
-class PasswordUpdateView(LoginRequiredMixin, FormView):
-    template_name = 'tienda/create_template.html'
-    form_class = PasswordChangeForm
-    success_url = reverse_lazy('client_info')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        user = form.save()
-        update_session_auth_hash(self.request, user)  # Keep the user logged in after password change
-        return super().form_valid(form)
-
-
-class ValoracionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Valoracion
-    template_name = 'tienda/create_template.html'
-    fields = ['puntuacion', 'comentario']
 
     def test_func(self):
         current_user = self.request.user
         result = False
-        valoracion = get_object_or_404(Valoracion, pk=self.kwargs["pk"])
-        if (current_user.has_perm('tienda.can_edit_commentary')
-                or valoracion.productocompra.compra.cliente.user.id == current_user.id):
+        tarjeta_pago = get_object_or_404(TarjetaDePago, pk=self.kwargs["pk"])
+        if tarjeta_pago.cliente.user.id == current_user.id:
             result = True
         return result
 
-    def get_success_url(self):
-        try:
-            next_page = self.request.GET['next']
-        except:
-            next_page = "/"
-        return next_page
+class TarjetaPagoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = TarjetaDePago
+    template_name = 'tienda/user/info/eliminar_metodo_pago.html'
+    success_url = reverse_lazy('client_info')
 
+    def test_func(self):
+        current_user = self.request.user
+        result = False
+        tarjeta_pago = get_object_or_404(TarjetaDePago, pk=self.kwargs["pk"])
+        if tarjeta_pago.cliente.user.id == current_user.id:
+            result = True
+        return result
+
+class ClienteDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Cliente
+    template_name = 'tienda/user/client_info.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Cliente, user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # if not verify_client(self.object.user):
+        #    messages.add_message(self.request, messages.ERROR, "Usuario inválido")  # No aparece el mensaje
+        context['compras'] = Compra.objects.filter(cliente__user_id=self.object.user.id)
+        context['direcciones'] = Direccion.objects.filter(cliente__user_id=self.object.user.id)
+        context['tarjetas_pago'] = TarjetaDePago.objects.filter(cliente__user_id=self.object.user.id)
+        return context
+
+    def test_func(self):
+        return verify_client(self.request.user)
 
 class ValoracionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Valoracion
@@ -585,63 +591,26 @@ class ValoracionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             next_page = "/"
         return next_page
 
-
-class DireccionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Direccion
+class ValoracionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Valoracion
     template_name = 'tienda/create_template.html'
-    fields = ['tipo_via', 'nombre', 'numero', 'envio', 'facturacion']
-    success_url = reverse_lazy('client_info')
+    fields = ['puntuacion', 'comentario']
 
     def test_func(self):
         current_user = self.request.user
         result = False
-        direccion = get_object_or_404(Direccion, pk=self.kwargs["pk"])
-        if direccion.cliente.user.id == current_user.id:
+        valoracion = get_object_or_404(Valoracion, pk=self.kwargs["pk"])
+        if (current_user.has_perm('tienda.can_edit_commentary')
+                or valoracion.productocompra.compra.cliente.user.id == current_user.id):
             result = True
         return result
 
-
-class DireccionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Direccion
-    template_name = 'tienda/user/info/eliminar_direccion.html'
-    success_url = reverse_lazy('client_info')
-
-    def test_func(self):
-        current_user = self.request.user
-        result = False
-        direccion = get_object_or_404(Direccion, pk=self.kwargs["pk"])
-        if direccion.cliente.user.id == current_user.id:
-            result = True
-        return result
-
-
-class TarjetaPagoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = TarjetaDePago
-    template_name = 'tienda/user/info/eliminar_metodo_pago.html'
-    success_url = reverse_lazy('client_info')
-
-    def test_func(self):
-        current_user = self.request.user
-        result = False
-        tarjeta_pago = get_object_or_404(TarjetaDePago, pk=self.kwargs["pk"])
-        if tarjeta_pago.cliente.user.id == current_user.id:
-            result = True
-        return result
-
-
-class TarjetaPagoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = TarjetaDePago
-    template_name = 'tienda/create_template.html'
-    fields = ['numero', 'tipo', 'titular', 'fecha_caducidad']
-    success_url = reverse_lazy('client_info')
-
-    def test_func(self):
-        current_user = self.request.user
-        result = False
-        tarjeta_pago = get_object_or_404(TarjetaDePago, pk=self.kwargs["pk"])
-        if tarjeta_pago.cliente.user.id == current_user.id:
-            result = True
-        return result
+    def get_success_url(self):
+        try:
+            next_page = self.request.GET['next']
+        except:
+            next_page = "/"
+        return next_page
 
 class ModificarSaldoView(UpdateView):
     model = Cliente
@@ -652,3 +621,34 @@ class ModificarSaldoView(UpdateView):
     def get_object(self, queryset=None):
         cliente_id = self.kwargs.get('cliente_id')
         return Cliente.objects.get(id=cliente_id)
+
+class PasswordUpdateView(LoginRequiredMixin, FormView):
+    template_name = 'tienda/create_template.html'
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy('client_info')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        user = form.save()
+        update_session_auth_hash(self.request, user)  # Keep the user logged in after password change
+        return super().form_valid(form)
+
+class ClienteUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = User
+    template_name = 'tienda/create_template.html'
+    success_url = reverse_lazy('client_info')
+    fields = ['first_name', 'last_name', 'email']
+
+    def test_func(self):
+        result = True
+        current_user = self.request.user
+        request_user_id = self.kwargs.get('pk')
+
+        if not current_user.id == request_user_id:
+            result = False
+            messages.add_message(self.request, messages.ERROR, "No tienes permiso para acceder a este perfil.")
+        return result

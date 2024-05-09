@@ -1,53 +1,62 @@
-.container-audio {
-  background-color: black;
-  border-radius: 20px;
-  width: 300px;
-  height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  color: white;
+/* Estilos para el reproductor de audio */
+#audio-player {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.container-audio h1 {
-  position: absolute;
-  top: 4px;
-  text-align: center;
-  font-size: 16px;
-  margin: 0;
+.timer {
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 
-.container-audio .progress_container {
-  position: absolute;
-  bottom: 14px;
+.volumen {
+  margin-bottom: 10px;
+}
+
+#progress {
   width: 100%;
-  max-width: 150px;
-  height: 5px;
-  background-color: #ccc;
-  border-radius: 6px;
+}
+
+#playList {
+  margin-top: 20px;
+}
+
+#controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#controls i {
+  margin: 5px;
   cursor: pointer;
-  overflow: hidden;
 }
 
-.container-audio #progress {
-  background-color: aqua;
-  width: 0;
-  height: 100%;
+#controls span {
+  margin-top: 10px;
+  font-size: 16px;
 }
 
-.container-audio #current_time {
-  position: absolute;
-  top: 40%;
-  left: 10%;
+#controls h3 {
+  margin-top: 20px;
+  font-size: 20px;
 }
 
-.container-audio #current_audio {
-  position: absolute;
-  top: 40%;
-  right: 10%;
+#controls p {
+  margin-top: 20px;
+  font-size: 14px;
 }
 
-.container-audio .buttons button {
-  cursor: pointer;
+/* Estilos para el botón de reproducción cuando está pausado */
+#iconPlay.fa-play-circle {
+  color: green;
+}
+
+/* Estilos para el botón de reproducción cuando está en pausa */
+#iconPlay.fa-pause-circle {
+  color: red;
 }
