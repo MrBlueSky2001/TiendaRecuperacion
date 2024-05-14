@@ -25,11 +25,41 @@ def verify_client(user):
 def welcome(request):
     return redirect('listado_comprar')
 
+@method_decorator(staff_member_required, name='dispatch')
+class EditarProductoView(UpdateView):
+    model = Producto
+    template_name = 'tienda/administrador/administrar_productos/editar_producto.html'
+    fields = ['marca', 'nombre', 'modelo', 'unidades', 'precio', 'vip', 'image']
+    success_url = reverse_lazy('listado_productos')
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, messages.WARNING, "Error de formulario")
+
+@method_decorator(staff_member_required, name='dispatch')
+class EliminarProductoView(DeleteView):
+    model = Producto
+    template_name = 'tienda/administrador/administrar_productos/eliminar_producto.html'
+    success_url = reverse_lazy('listado_productos')
+
+@method_decorator(staff_member_required, name='dispatch')
+class ListadoProductosView(ListView):
+    model = Producto
+    template_name = 'tienda/administrador/administrar_productos/listado_productos.html'
+    queryset = Producto.objects.all()
+    context_object_name = "productos"
+
 @method_decorator(staff_member_required(), name='dispatch')
-class ComprasPorClienteInformeFilterView(ListView):
-    template_name = 'tienda/admin/informes/informe_compras_usuario.html'
+class CrearProductoView(CreateView):
+    model = Producto
+    template_name = 'tienda/plantilla_para_formulario.html'
+    fields = ['marca', 'nombre', 'modelo', 'unidades', 'precio', 'vip', 'image']
+    success_url = reverse_lazy('listado_productos')
+
+@method_decorator(staff_member_required(), name='dispatch')
+class ComprasClientesFilterView(ListView):
+    template_name = 'tienda/administrador/informes/compras_clientes.html'
     context_object_name = "compras"
-    form_class = CompraSearchForm
+    form_class = BuscarCompraForm
 
     def get_queryset(self):
         queryset = Compra.objects.all()
@@ -45,11 +75,11 @@ class ComprasPorClienteInformeFilterView(ListView):
 
 @method_decorator(staff_member_required(), name='dispatch')
 class InformesView(TemplateView):
-    template_name = 'tienda/admin/informes/informe_productos_index.html'
+    template_name = 'tienda/administrador/informes/informes.html'
 
 @method_decorator(staff_member_required(), name='dispatch')
-class ProductoPorMarcaInformeFilterView(ListView):
-    template_name = 'tienda/admin/informes/informe_productos_marca.html'
+class ProductoPorMarcaFilterView(ListView):
+    template_name = 'tienda/administrador/informes/productos_por_marca.html'
     context_object_name = "productos"
     model = Producto
 
@@ -66,8 +96,18 @@ class ProductoPorMarcaInformeFilterView(ListView):
         return context
 
 @method_decorator(staff_member_required(), name='dispatch')
-class ProductosTopTenListView(ListView):
-    template_name = 'tienda/admin/informes/informe_productos_topten.html'
+class TopDiezClientesListView(ListView):
+    template_name = 'tienda/administrador/informes/top_diez_clientes.html'
+    context_object_name = "usuarios"
+
+    def get_queryset(self):
+        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(sum_importes=Sum('compra__importe')).order_by(
+            "-sum_importes")[:10]
+        return usuarios
+
+@method_decorator(staff_member_required(), name='dispatch')
+class TopDiezProductosListView(ListView):
+    template_name = 'tienda/administrador/informes/top_diez_productos.html'
     context_object_name = "productos"
 
     def get_queryset(self):
@@ -80,49 +120,8 @@ class ProductosTopTenListView(ListView):
             "-sum_ventas")[:10]
         return productos
 
-
-@method_decorator(staff_member_required(), name='dispatch')
-class ClientesTopTenListView(ListView):
-    template_name = 'tienda/admin/informes/informe_usuarios_topten.html'
-    context_object_name = "usuarios"
-
-    def get_queryset(self):
-        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(sum_importes=Sum('compra__importe')).order_by(
-            "-sum_importes")[:10]
-        return usuarios
-
-@method_decorator(staff_member_required, name='dispatch')
-class ProductoUpdateView(UpdateView):
-    model = Producto
-    template_name = 'tienda/admin/productos/editar_producto.html'
-    fields = ['marca', 'nombre', 'modelo', 'unidades', 'precio', 'vip', 'image']
-    success_url = reverse_lazy('listado_productos')
-
-    def form_invalid(self, form):
-        messages.add_message(self.request, messages.WARNING, "Error de formulario")
-
-@method_decorator(staff_member_required, name='dispatch')
-class ProductoDeleteView(DeleteView):
-    model = Producto
-    template_name = 'tienda/admin/productos/eliminar_producto.html'
-    success_url = reverse_lazy('listado_productos')
-
-@method_decorator(staff_member_required, name='dispatch')
-class ProductosListView(ListView):
-    model = Producto
-    template_name = 'tienda/admin/productos/listado_productos.html'
-    queryset = Producto.objects.all()
-    context_object_name = "productos"
-
-@method_decorator(staff_member_required(), name='dispatch')
-class ProductoCreateView(CreateView):
-    model = Producto
-    template_name = 'tienda/create_template.html'
-    fields = ['marca', 'nombre', 'modelo', 'unidades', 'precio', 'vip', 'image']
-    success_url = reverse_lazy('listado_productos')
-
-class LoginClienteView(LoginView):
-    template_name = 'tienda/login/login.html'
+class ClienteLoginView(LoginView):
+    template_name = 'tienda/inicio_sesion/login.html'
 
     def form_valid(self, form):
         user = form.get_user()
@@ -140,7 +139,7 @@ class LoginClienteView(LoginView):
             next_page = "/"
         return next_page
 
-class LogoutClienteView(LoginRequiredMixin, LogoutView):
+class ClienteLogoutView(LoginRequiredMixin, LogoutView):
     next_page = '/tienda'
 
     def get_context_data(self, **kwargs):
@@ -148,11 +147,11 @@ class LogoutClienteView(LoginRequiredMixin, LogoutView):
         messages.add_message(self.request, messages.ERROR, "Sesión cerrada")  # No aparece el mensaje
         return context
 
-class ClienteCreateView(CreateView):
+class ClienteSignUpView(CreateView):
     model = Cliente
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     success_url = reverse_lazy('tienda')
-    form_class = ClienteRegistrationForm
+    form_class = RegistrarClienteForm
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
@@ -168,12 +167,12 @@ class ClienteCreateView(CreateView):
 
         return response
 
-class CarritoView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
-    template_name = 'tienda/user/compra/carrito.html'
+class CarroCompraView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
+    template_name = 'tienda/cliente/compra/carro.html'
     form_class = CarritoForm
 
     def get_factory_kwargs(self):
-        kwargs = super(CarritoView, self).get_factory_kwargs()
+        kwargs = super(CarroCompraView, self).get_factory_kwargs()
         context = self.get_context_data()
         productoscompra = context['productoscompra']
         kwargs['extra'] = len(productoscompra)
@@ -192,7 +191,7 @@ class CarritoView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
         if counter > 0:
             self.request.session['lista_productos_carrito'] = serializers.serialize('json', productoscompra)
 
-        return super(CarritoView, self).formset_valid(formset)
+        return super(CarroCompraView, self).formset_valid(formset)
 
     def test_func(self):
         return verify_client(self.request.user)
@@ -220,7 +219,7 @@ class CarritoView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
 
         return context
 
-class ComprobarCarrito:
+class ComprobarCarro:
     def dispatch(self, request, *args, **kwargs):
         if 'lista_productos_carrito' not in self.request.session:
             messages.add_message(self.request, messages.ERROR, "Carrito vacío")
@@ -230,8 +229,8 @@ class ComprobarCarrito:
     def redirect_tienda(self):
         return HttpResponseRedirect(reverse_lazy('tienda'))
 
-class CheckoutCreateView(ComprobarCarrito, LoginRequiredMixin, UserPassesTestMixin, FormView):
-    template_name = 'tienda/user/compra/checkout.html'
+class CheckoutView(ComprobarCarro, LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = 'tienda/cliente/compra/checkout.html'
     form_class = CheckoutForm
     success_url = reverse_lazy('tienda')
 
@@ -300,9 +299,9 @@ class CheckoutCreateView(ComprobarCarrito, LoginRequiredMixin, UserPassesTestMix
 
         return form_valid
 
-class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class HistorialView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Compra
-    template_name = 'tienda/user/compra/detalle_compra.html'
+    template_name = 'tienda/cliente/compra/historial.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -317,9 +316,9 @@ class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             result = True
         return result
 
-class ProductoDetailView(DetailView):
+class DetallesDelProductoView(DetailView):
     model = Producto
-    template_name = 'tienda/user/compra/detalle_producto.html'
+    template_name = 'tienda/cliente/compra/detalle_del_producto.html'
     context_object_name = 'producto'
 
     def get(self, request, *args, **kwargs):
@@ -332,7 +331,7 @@ class ProductoDetailView(DetailView):
         context = {'producto': self.object, 'form': form, 'valoraciones': valoraciones}
         return render(request, self.template_name, context)
 
-class AgregarCarritoItemView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+class AgregarProductoCarroView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     form_class = CompraForm
 
     def test_func(self):
@@ -371,7 +370,7 @@ class AgregarCarritoItemView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             next_page = "/"
         return next_page
 
-class CarritoDeleteItemView(LoginRequiredMixin, UserPassesTestMixin, View):
+class EliminarProductoCarroView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return verify_client(self.request.user)
@@ -389,12 +388,12 @@ class CarritoDeleteItemView(LoginRequiredMixin, UserPassesTestMixin, View):
                 del self.request.session['lista_productos_carrito']
         return redirect('carrito')
 
-class ListadoComprarFilterView(FilterView):
-    template_name = 'tienda/user/compra/listado_comprar.html'
+class ListadoProductosCompraFilterView(FilterView):
+    template_name = 'tienda/cliente/compra/listado_productos_compra.html'
     context_object_name = "productos"
 
     def get(self, request, *args, **kwargs):
-        form = FormBuscarProducto(request.GET)
+        form = BuscarProductoForm(request.GET)
 
         if form.is_valid():
             texto_busqueda = form.cleaned_data.get('texto', '').lower()  # Convertir a minúsculas
@@ -427,30 +426,9 @@ class ListadoComprarFilterView(FilterView):
         }
         return render(request, self.template_name, context)
 
-@method_decorator(staff_member_required(), name='dispatch')
-class InformesView(TemplateView):
-    template_name = 'tienda/admin/informes/informe_productos_index.html'
-
-class CompraDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = Compra
-    template_name = 'tienda/user/compra/detalle_compra.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['productoscompra'] = ProductoCompra.objects.filter(compra_id=self.object.id).select_related(
-            'valoracion')
-        return context
-
-    def test_func(self):
-        result = False
-        compra = get_object_or_404(Compra, pk=self.kwargs["pk"])
-        if verify_client(self.request.user) and compra.cliente.user.id == self.request.user.id:
-            result = True
-        return result
-
-class DireccionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class CrearDireccionView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Direccion
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     success_url = reverse_lazy('client_info')
     fields = ['tipo_via', 'nombre', 'numero', 'envio', 'facturacion']
 
@@ -465,9 +443,9 @@ class DireccionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
         return super().form_valid(form)
 
-class DireccionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ModificarDireccionView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Direccion
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     fields = ['tipo_via', 'nombre', 'numero', 'envio', 'facturacion']
     success_url = reverse_lazy('client_info')
 
@@ -479,9 +457,9 @@ class DireccionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             result = True
         return result
 
-class DireccionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class EliminarDireccionView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Direccion
-    template_name = 'tienda/user/info/eliminar_direccion.html'
+    template_name = 'tienda/cliente/datos_cliente/eliminar_direccion.html'
     success_url = reverse_lazy('client_info')
 
     def test_func(self):
@@ -493,9 +471,9 @@ class DireccionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return result
 
 
-class TarjetaPagoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class CrearTarjetaDePagoView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = TarjetaDePago
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     success_url = reverse_lazy('client_info')
     fields = ['numero', 'tipo', 'titular', 'fecha_caducidad']
 
@@ -503,7 +481,7 @@ class TarjetaPagoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
         return verify_client(self.request.user)
 
     def get_form(self, form_class=None):
-        form = super(TarjetaPagoCreateView, self).get_form()
+        form = super(CrearTarjetaDePagoView, self).get_form()
         form.fields['fecha_caducidad'].widget.input_type = 'date'
         return form
 
@@ -515,9 +493,9 @@ class TarjetaPagoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
 
         return super().form_valid(form)
 
-class TarjetaPagoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ModificarTarjetaDePagoView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = TarjetaDePago
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     fields = ['numero', 'tipo', 'titular', 'fecha_caducidad']
     success_url = reverse_lazy('client_info')
 
@@ -529,9 +507,9 @@ class TarjetaPagoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
             result = True
         return result
 
-class TarjetaPagoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class EliminarTarjetaDePagoView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = TarjetaDePago
-    template_name = 'tienda/user/info/eliminar_metodo_pago.html'
+    template_name = 'tienda/cliente/datos_cliente/eliminar_tarjeta_de_pago.html'
     success_url = reverse_lazy('client_info')
 
     def test_func(self):
@@ -542,9 +520,9 @@ class TarjetaPagoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
             result = True
         return result
 
-class ClienteDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class InformacionDelClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Cliente
-    template_name = 'tienda/user/client_info.html'
+    template_name = 'tienda/cliente/client_info.html'
 
     def get_object(self, queryset=None):
         return get_object_or_404(Cliente, user=self.request.user)
@@ -561,9 +539,9 @@ class ClienteDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return verify_client(self.request.user)
 
-class ValoracionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class CrearValoracionesView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Valoracion
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     fields = ['puntuacion', 'comentario']
 
     def test_func(self):
@@ -591,9 +569,9 @@ class ValoracionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             next_page = "/"
         return next_page
 
-class ValoracionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ModificarValoracionesView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Valoracion
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     fields = ['puntuacion', 'comentario']
 
     def test_func(self):
@@ -614,7 +592,7 @@ class ValoracionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class ModificarSaldoView(UpdateView):
     model = Cliente
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     form_class = ModificarSaldoForm
     success_url = reverse_lazy('client_info')
 
@@ -622,8 +600,8 @@ class ModificarSaldoView(UpdateView):
         cliente_id = self.kwargs.get('cliente_id')
         return Cliente.objects.get(id=cliente_id)
 
-class PasswordUpdateView(LoginRequiredMixin, FormView):
-    template_name = 'tienda/create_template.html'
+class ModificarContrasenaView(LoginRequiredMixin, FormView):
+    template_name = 'tienda/plantilla_para_formulario.html'
     form_class = PasswordChangeForm
     success_url = reverse_lazy('client_info')
 
@@ -637,9 +615,9 @@ class PasswordUpdateView(LoginRequiredMixin, FormView):
         update_session_auth_hash(self.request, user)  # Keep the user logged in after password change
         return super().form_valid(form)
 
-class ClienteUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ModificarDatosDelClienteView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = User
-    template_name = 'tienda/create_template.html'
+    template_name = 'tienda/plantilla_para_formulario.html'
     success_url = reverse_lazy('client_info')
     fields = ['first_name', 'last_name', 'email']
 

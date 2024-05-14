@@ -2,10 +2,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
-
-# Create your models here.
-# Cuidado con el orden de las clases porque al formar dependencias si una clase no existe no puede relacionarse con otra
-
 class Marca(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
 
