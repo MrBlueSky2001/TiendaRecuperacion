@@ -17,6 +17,7 @@ from django_filters.views import FilterView
 from extra_views import FormSetView
 from .forms import *
 from .models import *
+from django.forms import formset_factory
 
 
 def verify_client(user):
@@ -99,26 +100,30 @@ class ProductoPorMarcaFilterView(ListView):
 class TopDiezClientesListView(ListView):
     template_name = 'tienda/administrador/informes/top_diez_clientes.html'
     context_object_name = "usuarios"
+    queryset = Cliente.objects.none()
 
-    def get_queryset(self):
-        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(sum_importes=Sum('compra__importe')).order_by(
-            "-sum_importes")[:10]
-        return usuarios
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuarios = Cliente.objects.filter(compra__isnull=False).annotate(
+            sum_importes=Sum('compra__importe')
+        ).order_by("-sum_importes")[:10]
+        context['usuarios'] = usuarios
+        return context
 
 @method_decorator(staff_member_required(), name='dispatch')
 class TopDiezProductosListView(ListView):
     template_name = 'tienda/administrador/informes/top_diez_productos.html'
     context_object_name = "productos"
+    queryset = Producto.objects.none()
 
-    def get_queryset(self):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         productos = Producto.objects.filter(productocompra__isnull=False).annotate(
             sum_ventas=Sum('productocompra__unidades'),
-            sum_importes=Sum(F('precio') * F(
-                'productocompra__unidades'),
-                             output_field=models.FloatField())
-        ).order_by(
-            "-sum_ventas")[:10]
-        return productos
+            sum_importes=Sum(F('precio') * F('productocompra__unidades'), output_field=models.FloatField())
+        ).order_by("-sum_ventas")[:10]
+        context['productos'] = productos
+        return context
 
 class ClienteLoginView(LoginView):
     template_name = 'tienda/inicio_sesion/login.html'
@@ -128,7 +133,7 @@ class ClienteLoginView(LoginView):
         if verify_client(user):
             return_value = super().form_valid(form)
         else:
-            messages.add_message(self.request, messages.WARNING, "Sólo los clientes registrados pueden iniciar sesión.")
+            messages.add_message(self.request, messages.WARNING, "No está registrado para iniciar sesión.")
             return_value = self.form_invalid(form)
         return return_value
 
@@ -144,7 +149,7 @@ class ClienteLogoutView(LoginRequiredMixin, LogoutView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        messages.add_message(self.request, messages.ERROR, "Sesión cerrada")  # No aparece el mensaje
+        messages.add_message(self.request, messages.ERROR, "Sesión cerrada")
         return context
 
 class ClienteSignUpView(CreateView):
@@ -171,13 +176,6 @@ class CarroCompraView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
     template_name = 'tienda/cliente/compra/carro.html'
     form_class = CarritoForm
 
-    def get_factory_kwargs(self):
-        kwargs = super(CarroCompraView, self).get_factory_kwargs()
-        context = self.get_context_data()
-        productoscompra = context['productoscompra']
-        kwargs['extra'] = len(productoscompra)
-        return kwargs
-
     def formset_valid(self, formset):
         context = self.get_context_data()
         productoscompra = context['productoscompra']
@@ -185,28 +183,22 @@ class CarroCompraView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
 
         for form, productocompra in zip(formset, productoscompra):
             productocompra.unidades = form.cleaned_data['unidades']
-            counter = counter + 1
+            counter += 1
+
         context['productoscompra'] = productoscompra
 
         if counter > 0:
             self.request.session['lista_productos_carrito'] = serializers.serialize('json', productoscompra)
 
-        return super(CarroCompraView, self).formset_valid(formset)
+        return super().formset_valid(formset)
 
     def test_func(self):
         return verify_client(self.request.user)
 
-    def get_initial(self):
-        context = self.get_context_data()
-        productoscompra = context['productoscompra']
-        initial = []
-        for productocompra in productoscompra:
-            initial.append({'id_producto': productocompra.producto.id, 'unidades': productocompra.unidades})
-        return initial
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         productoscompra = []
+
         if 'lista_productos_carrito' in self.request.session:
             context['comprobar_vacio'] = False
             des_list = serializers.deserialize('json', self.request.session['lista_productos_carrito'])
@@ -216,6 +208,12 @@ class CarroCompraView(LoginRequiredMixin, UserPassesTestMixin, FormSetView):
             context['comprobar_vacio'] = True
 
         context['productoscompra'] = productoscompra
+        context['formset'] = formset_factory(self.form_class, extra=len(productoscompra))
+
+        if 'productoscompra' in context:
+            initial = [{'id_producto': productocompra.producto.id, 'unidades': productocompra.unidades}
+                       for productocompra in context['productoscompra']]
+            context['formset'] = formset_factory(self.form_class, extra=len(productoscompra))(initial=initial)
 
         return context
 
@@ -249,7 +247,6 @@ class CheckoutView(ComprobarCarro, LoginRequiredMixin, UserPassesTestMixin, Form
         print("Productos en el carrito:", productoscompra)
         context['productoscompra'] = productoscompra
         context['precio_total'] = precio_total
-        # context['precio_total'] = productoscompra.aggregate(total=Sum('precio'))['total']
         return context
 
     def get_form(self, form_class=None):
@@ -266,7 +263,6 @@ class CheckoutView(ComprobarCarro, LoginRequiredMixin, UserPassesTestMixin, Form
         productoscompra = context['productoscompra']
         cliente = Cliente.objects.filter(user=self.request.user).first()
 
-        # Validar número de unidades
         for productocompra in productoscompra:
             if productocompra.unidades > productocompra.producto.unidades:
                 messages.add_message(self.request, messages.ERROR, "Compra inválida")
@@ -291,7 +287,7 @@ class CheckoutView(ComprobarCarro, LoginRequiredMixin, UserPassesTestMixin, Form
             for productocompra in productoscompra:
                 productocompra.compra = compra
                 productocompra.producto.unidades -= productocompra.unidades
-                productocompra.producto.save()  # Guardar el producto después de actualizar las unidades
+                productocompra.producto.save()
                 productocompra.save()
 
             del self.request.session['lista_productos_carrito']
@@ -396,15 +392,15 @@ class ListadoProductosCompraFilterView(FilterView):
         form = BuscarProductoForm(request.GET)
 
         if form.is_valid():
-            texto_busqueda = form.cleaned_data.get('texto', '').lower()  # Convertir a minúsculas
+            texto_busqueda = form.cleaned_data.get('texto', '').lower()
             marcas_seleccionadas = form.cleaned_data.get('marca', [])
-            print("Texto de búsqueda:", texto_busqueda)  # Verifica el texto de búsqueda
-            print("Marcas seleccionadas:", marcas_seleccionadas)  # Verifica las marcas seleccionadas
+            print("Texto de búsqueda:", texto_busqueda)
+            print("Marcas seleccionadas:", marcas_seleccionadas)
 
             queryset = Producto.objects.filter(unidades__gt=0)
 
             if texto_busqueda:
-                queryset = queryset.filter(nombre__icontains=texto_busqueda)  # Uso de icontains
+                queryset = queryset.filter(nombre__icontains=texto_busqueda)
 
             if marcas_seleccionadas:
                 queryset = queryset.filter(marca__in=marcas_seleccionadas)
@@ -529,8 +525,6 @@ class InformacionDelClienteView(LoginRequiredMixin, UserPassesTestMixin, DetailV
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # if not verify_client(self.object.user):
-        #    messages.add_message(self.request, messages.ERROR, "Usuario inválido")  # No aparece el mensaje
         context['compras'] = Compra.objects.filter(cliente__user_id=self.object.user.id)
         context['direcciones'] = Direccion.objects.filter(cliente__user_id=self.object.user.id)
         context['tarjetas_pago'] = TarjetaDePago.objects.filter(cliente__user_id=self.object.user.id)
@@ -612,7 +606,7 @@ class ModificarContrasenaView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         user = form.save()
-        update_session_auth_hash(self.request, user)  # Keep the user logged in after password change
+        update_session_auth_hash(self.request, user)
         return super().form_valid(form)
 
 class ModificarDatosDelClienteView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

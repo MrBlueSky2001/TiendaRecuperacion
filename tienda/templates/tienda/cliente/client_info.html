@@ -10,69 +10,69 @@
                 <img src="{% static 'tienda/img/user_icon.svg' %}" class="card-img-top" alt="User Icon">
                 <div class="card-body">
                     <h5 class="card-title">{{ cliente.user }}</h5>
-                    <p class="card-text"><strong>{% translate "Vip Status" %}:</strong> {{ cliente.vip }}</p>
-                    <p class="card-text"><strong>{% translate "Balance" %}:</strong> {{ cliente.saldo }} €</p>
-                    <a href="{% url 'modificar_saldo' cliente.id %}" class="btn btn-warning">{% translate "Edit Price" %}</a>
+                    <p class="card-text"><strong>Vip Status:</strong> {{ cliente.vip }}</p>
+                    <p class="card-text"><strong>Saldo:</strong> {{ cliente.saldo }} €</p>
+                    <a href="{% url 'modificar_saldo' cliente.id %}" class="btn btn-warning">Editar Saldo</a>
                 </div>
             </div>
         </div>
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{% translate "Personal Information" %}</h5>
-                    <p class="card-text"><strong>{% translate "Name" %}:</strong> {{ cliente.user.first_name }} {{ cliente.user.last_name }}</p>
-                    <p class="card-text"><strong>Email:</strong> {{ cliente.user.email }}</p>
-                    <a href="{% url 'client_info_password_update' %}" class="btn btn-warning">{% translate "Edit Password" %}</a>
-                    <a href="{% url 'client_info_update' cliente.user.id %}" class="btn btn-primary">{% translate "Edit Personal Information" %}</a>
+                    <h5 class="card-title">Datos Personales</h5>
+                    <p class="card-text"><strong>Nombre:</strong> {{ cliente.user.first_name }} {{ cliente.user.last_name }}</p>
+                    <p class="card-text"><strong>Correo electrónico:</strong> {{ cliente.user.email }}</p>
+                    <a href="{% url 'client_info_password_update' %}" class="btn btn-warning">Modificar Contraseña</a>
+                    <a href="{% url 'client_info_update' cliente.user.id %}" class="btn btn-primary">Modificar Datos Personales</a>
                 </div>
             </div>
             <div class="mt-4">
-                <h5>{% translate "Addresses" %}:</h5>
+                <h5>Direcciones</h5>
                 <div class="row">
                     {% for direccion in direcciones %}
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
                                     <p class="card-text">{{ direccion.tipo_via }} {{ direccion.nombre }}, {{ direccion.numero }}</p>
-                                    <p class="card-text">{% if direccion.envio %}{% translate "Delivery Address" %}{% endif %}{% if direccion.facturacion %}{% translate "Billing Address" %}{% endif %}</p>
-                                    <a href="{% url 'client_address_update' direccion.id %}" class="btn btn-warning">{% translate "Edit" %}</a>
-                                    <a href="{% url 'client_address_delete' direccion.id %}" class="btn btn-danger">{% translate "Delete" %}</a>
+                                    <p class="card-text">{% if direccion.envio %}Dirección de Envio{% endif %}{% if direccion.facturacion %}Dirección de Facturación{% endif %}</p>
+                                    <a href="{% url 'client_address_update' direccion.id %}" class="btn btn-warning">Modificar Dirección</a>
+                                    <a href="{% url 'client_address_delete' direccion.id %}" class="btn btn-danger">Eliminar Dirección</a>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                     <div class="col-md-6">
-                        <a href="{% url 'client_address_create' %}" class="btn btn-success mt-3">{% translate "Add Address" %}</a>
+                        <a href="{% url 'client_address_create' %}" class="btn btn-success mt-3">Añadir Dirección</a>
                     </div>
                 </div>
             </div>
             <div class="mt-4">
-                <h5>{% translate "Payment Methods" %}:</h5>
+                <h5>Métodos de Pago:</h5>
                 <div class="row">
                     {% for tarjeta in tarjetas_pago %}
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <p class="card-text"><strong>{% translate "Card Number" %}:</strong> {{ tarjeta.numero }}</p>
-                                    <p class="card-text"><strong>{% translate "Holder" %}:</strong> {{ tarjeta.titular }}</p>
-                                    <a href="{% url 'client_payment_update' tarjeta.id %}" class="btn btn-warning">{% translate "Edit" %}</a>
-                                    <a href="{% url 'client_payment_delete' tarjeta.id %}" class="btn btn-danger">{% translate "Delete" %}</a>
+                                    <p class="card-text"><strong>Número de Tarjeta:</strong> {{ tarjeta.numero }}</p>
+                                    <p class="card-text"><strong>Titular:</strong> {{ tarjeta.titular }}</p>
+                                    <a href="{% url 'client_payment_update' tarjeta.id %}" class="btn btn-warning">Modificar Método de Pago</a>
+                                    <a href="{% url 'client_payment_delete' tarjeta.id %}" class="btn btn-danger">Eliminar Método de Pago</a>
                                 </div>
                             </div>
                         </div>
                     {% endfor %}
                     <div class="col-md-6">
-                        <a href="{% url 'client_payment_create' %}" class="btn btn-success mt-3">{% translate "Add Payment Method" %}</a>
+                        <a href="{% url 'client_payment_create' %}" class="btn btn-success mt-3">Añadir Método de Pago</a>
                     </div>
                 </div>
             </div>
             <div class="mt-4">
-                <h5>{% translate "Order History" %}:</h5>
+                <h5>Historial de Compras:</h5>
                 <div class="list-group">
                     {% for compra in compras %}
                         <a href="{% url 'compra_detail' compra.id %}" class="list-group-item list-group-item-action">
-                            <p class="mb-1">{% translate "Date" %}: {{ compra.fecha }}</p>
-                            <small>{% translate "Amount" %}: {{ compra.importe }}, {% translate "IVA" %}: {{ compra.iva }}, {% trans "Shipping Address" %}: {{ compra.direccion_envio }}, {% trans "Billing Address" %}: {{ compra.direccion_facturacion }}, {% trans "Payment Method" %}: {{ compra.metodo_pago }}</small>
+                            <p class="mb-1">Fecha: {{ compra.fecha }}</p>
+                            <small>Importe: {{ compra.importe }}, IVA: {{ compra.iva }}, Dirección de Envio: {{ compra.direccion_envio }}, Dirección de Facturación: {{ compra.direccion_facturacion }}, Método de Pago: {{ compra.metodo_pago }}</small>
                         </a>
                     {% endfor %}
                 </div>

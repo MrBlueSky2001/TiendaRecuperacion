@@ -1,16 +1,15 @@
 {% extends 'tienda/base.html' %}
 {% load i18n %}
-
 {% block content %}
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div class="card mt-4">
             <div class="card-body">
-                <h2 class="card-title">{% trans "Create" %}</h2>
+                <h2 class="card-title">Crear</h2>
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" class="btn btn-warning">{% trans "Confirm" %}</button>
+                    <button type="submit" class="btn btn-warning">Confirmar</button>
                 </form>
             </div>
         </div>

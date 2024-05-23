@@ -3,36 +3,33 @@
 {% load i18n %}
 
 {% block content %}
-    <link rel="stylesheet" href="{% static 'tienda/css/detalle_producto.css' %}">
-    ID: {{ compra.id }}
-    <br>
-    Importe: {{ compra.importe }}
-    <br>
-    Fecha: {{ compra.fecha }}
-    <br>
-    IVA: {{ compra.iva }}
-    <br>
-    Direccion_envio: {{ compra.direccion_envio }}
-    <br>
-    Direccion_facturacion:{{ compra.direccion_facturacion }}
-    <br>
-    Metodo_pago: {{ compra.metodo_pago }}
-    <br><br><br>
-    <h1>Productos</h1>
-    {% for productocompra in productoscompra %}
-        {{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}
-        Unidades compradas: {{productocompra.unidades}}
-        {% if productocompra.valoracion %}
-            <p>Puntuación: {{ productocompra.valoracion.puntuacion}}</p>
-            <p>Comentario: {{ productocompra.valoracion.comentario}}</p>
-            <button>
-                <a href="{% url  'order_rating_update' productocompra.valoracion.id %}?next={% url  'compra_detail' compra.id %}">Editar valoración</a>
-            </button>
-            {% else %}
-                <button>
-                    <a href="{% url  'order_rating_create' productocompra.id %}?next={% url  'compra_detail' compra.id %}">Añadir una valoración</a>
-                </button>
-        {% endif %}
-        <br><br>
-    {% endfor %}
+    <div class="container mt-5">
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <p><strong>Fecha:</strong> {{ compra.fecha }}</p>
+            <p><strong>ID:</strong> {{ compra.id }}</p>
+            <p><strong>Importe:</strong> {{ compra.importe }}</p>
+            <p><strong>IVA:</strong> {{ compra.iva }}</p>
+            <p><strong>Direccion de Envio:</strong> {{ compra.direccion_envio }}</p>
+            <p><strong>Direccion de Facturacion:</strong> {{ compra.direccion_facturacion }}</p>
+            <p><strong>Método de Pago:</strong> {{ compra.metodo_pago }}</p>
+        </div>
+        <h1 class="mb-4">Productos</h1>
+        {% for productocompra in productoscompra %}
+            <div class="mb-4 p-3 bg-light rounded shadow-sm">
+                <p><strong>{{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}</strong></p>
+                <p>Unidades compradas: {{ productocompra.unidades }}</p>
+                {% if productocompra.valoracion %}
+                    <p>Puntuación: {{ productocompra.valoracion.puntuacion }}</p>
+                    <p>Comentario: {{ productocompra.valoracion.comentario }}</p>
+                    <a href="{% url 'order_rating_update' productocompra.valoracion.id %}?next={% url 'compra_detail' compra.id %}" class="btn btn-outline-primary btn-sm">
+                        Editar valoración
+                    </a>
+                {% else %}
+                    <a href="{% url 'order_rating_create' productocompra.id %}?next={% url 'compra_detail' compra.id %}" class="btn btn-outline-success btn-sm">
+                        Añadir una valoración
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

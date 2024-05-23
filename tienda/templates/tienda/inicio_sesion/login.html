@@ -3,20 +3,30 @@
 {% load i18n %}
 
 {% block content %}
-<!--<link rel="stylesheet" href="{% static 'tienda/css/login.css' %}">-->
 <div class="container">
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-dark text-white text-center">
+                    <h3 class="my-3">Iniciar Sesión</h3>
+                </div>
+                <div class="card-body p-4">
                     <form method="post" class="loginForm">
                         {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">{% trans "Log In" %}</button>
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-dark btn-block">Iniciar Sesión</button>
+                        </div>
                     </form>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <small class="text-muted">¿No tienes una cuenta? <a href="{% url 'register' %}" class="text-primary">Registrate</a></small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
+

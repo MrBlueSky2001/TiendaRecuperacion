@@ -3,23 +3,37 @@
 {% load i18n %}
 
 {% block content %}
-    <link rel="stylesheet" href="{% static 'tienda/css/checkout.css' %}">
-    <div class="containerCompra">
-        <div class="containerCompraDesglose">
-            <h1>{% translate "checkout" %}</h1>
+
+    <div class="container mt-5">
+        <div class="bg-light p-4 rounded shadow-sm">
+            <h1 class="display-4 text-center mb-5">{% translate "checkout" %}</h1>
             {% for productocompra in productoscompra %}
-                <span>{% translate "product_name" %}: {{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}</span>
-                <span>{% translate "product_units" %}: {{ productocompra.unidades }}</span>
-                <span>{% translate "product_price" %}: {{ productocompra.precio }}</span>
-                <br>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <span class="fw-bold">{% translate "product_name" %}:</span>
+                        <span>{{ productocompra.producto.nombre }} {{ productocompra.producto.modelo }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fw-bold">{% translate "product_units" %}:</span>
+                        <span>{{ productocompra.unidades }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="fw-bold">{% translate "product_price" %}:</span>
+                        <span>{{ productocompra.precio }}</span>
+                    </div>
+                </div>
             {% endfor %}
 
-            <br><br><br>
-            <p>{% translate "total_price" %}: {{ precio_total }}</p>
-            <form method="POST" >
+            <div class="text-center mt-5">
+                <p class="h4">{% translate "total_price" %}: {{ precio_total }}</p>
+            </div>
+
+            <form method="POST" class="mt-4">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" value="checkout">{% translate "buy" %}</button>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-lg" value="checkout">{% translate "buy" %}</button>
+                </div>
             </form>
         </div>
     </div>
