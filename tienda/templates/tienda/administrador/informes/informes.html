@@ -2,19 +2,21 @@
 {% load i18n %}
 
 {% block content %}
-	<h2>{% translate "choose_report" %}</h2>
-	<ul>
-         <a href="{% url 'informe_productos_marca' %}">
-            <li>{% translate "report_products_by_brand" %}</li>
-         </a>
-		<a href="{% url 'informe_productos_topten' %}">
-            <li>{% translate "top_seller" %}</li>
-         </a>
-        <a href="{% url 'informe_compras_usuario' %}">
-            <li>{% translate "purchases" %}</li>
-         </a>
-        <a href="{% url 'informe_usuarios_topten' %}">
-            <li>{% translate "top_clients" %}</li>
-         </a>
-	</ul>
+    <div class="container mt-5">
+        <h2 class="mb-4">{% translate "choose_report" %}</h2>
+        <div class="list-group">
+            <a href="{% url 'informe_productos_marca' %}" class="list-group-item list-group-item-action">
+                {% translate "report_products_by_brand" %}
+            </a>
+            <a href="{% url 'informe_productos_topten' %}" class="list-group-item list-group-item-action">
+                {% translate "top_seller" %}
+            </a>
+            <a href="{% url 'informe_compras_usuario' %}" class="list-group-item list-group-item-action">
+                {% translate "purchases" %}
+            </a>
+            <a href="{% url 'informe_usuarios_topten' %}" class="list-group-item list-group-item-action">
+                {% translate "top_clients" %}
+            </a>
+        </div>
+    </div>
 {% endblock %}

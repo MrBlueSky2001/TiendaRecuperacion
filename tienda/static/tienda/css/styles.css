@@ -60,3 +60,7 @@
 #iconPlay.fa-pause-circle {
   color: red;
 }
+
+.navbar-fixed-top {
+  z-index: 1030; /* Asegura que el navbar esté por debajo del resto del contenido */
+}
