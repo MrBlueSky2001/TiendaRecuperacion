@@ -381,7 +381,7 @@ class DetallesDelProductoView(DetailView):
         self.object = self.get_object()
         # Verificamos si el usuario está autenticado y es un cliente.
         if not request.user.is_anonymous and verify_client(request.user):
-            # Creamos un formulario de compra con el producto actual preseleccionado.
+            # Creamos un formulario de compra con el producto actual.
             form = CompraForm(initial={'id_producto': self.object.id})
         else:
             form = None
